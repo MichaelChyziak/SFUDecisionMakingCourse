@@ -1,2 +1,1 @@
 # SFUDecisionMakingCourse
-# SFUDecisionMakingCourse
