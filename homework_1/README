@@ -25,3 +25,6 @@ This should create a "visualization_model" program which is ran doing the follow
 
 PROGRAM GUIDE
 This program will show 4 different screen. The first screen is an image of a red cube, a green pyramid, and a blue diamond all slightly offset so that they are evident that they exist in 3-D space. Pressing the left and right arrow keys on the keyboard will switch between this view and ones with each shape being shown independantly.
+
+EXTRA
+Four images are provided in .png format. They are actual screenshots of the program running and showing all 4 possible screens that the user can cycle through. The screen can also be maximized if the user wishes.
