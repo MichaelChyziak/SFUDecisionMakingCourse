@@ -1,0 +1,27 @@
+HOMEWORK 1
+
+SETUP
+The program was run and compiled in Ubuntu 18.04 but should work in most other versions. The following commands were ran in order to get the program working:
+> sudo apt-get update
+> sudo apt-get install freeglut3
+> sudo apt-get install freeglut3-dev
+> sudo apt-get install binutils-gold
+> sudo apt-get install g++ cmake
+> sudo apt-get install libglew-dev
+> sudo apt-get install g++
+> sudo apt-get install mesa-common-dev
+> sudo apt-get install build-essential
+> sudo apt-get install libglew1.5-dev libglm-dev
+> sudo apt-get install mesa-utils
+> sudo apt-get –f install
+
+
+PROGRAM COMPILATION AND RUNNING
+The following command should be executed in order to compile the program:
+> g++ visualization_model.cc -lm -lglut -lGL -lGLU -o visualization_model
+
+This should create a "visualization_model" program which is ran doing the following command:
+> ./visualization_model
+
+PROGRAM GUIDE
+This program will show 4 different screen. The first screen is an image of a red cube, a green pyramid, and a blue diamond all slightly offset so that they are evident that they exist in 3-D space. Pressing the left and right arrow keys on the keyboard will switch between this view and ones with each shape being shown independantly.
