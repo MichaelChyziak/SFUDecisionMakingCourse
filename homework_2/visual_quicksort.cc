@@ -5,6 +5,7 @@
 //
 // g++ visual_quicksort.cc -lm -lglut -lGL -lGLU -o visual_quicksort
 
+// Standard libraries
 #include <iostream>
 #include <string>
 #include <stdlib.h>
@@ -18,6 +19,9 @@
 #include <GL/glut.h>
 #endif
 
+// Link freeglut (for stopping the program to end when GLUT window closes)
+#include <GL/freeglut.h>
+
 using namespace std;
 
 void drawObjects();
@@ -26,10 +30,8 @@ void drawCube(float startX, float startY, float startZ,
 		float sizeX, float sizeY, float sizeZ,
 		float angleX, float angleY, float angleZ);
 void cubeSort(int argc, char **argv);
-void nameSort();
+void nameSort(const char* name_unsorted);
 void quickSort(int array[], int left_start, int right_start);
-
-const string NAME_ORIGINAL = "MICHAEL CHYZIAK";
 
 // The current object being shown on the screen
 enum screenObject {all, cube};
@@ -43,15 +45,15 @@ int main(int argc, char **argv) {
 	int user_input_size;
 	bool run_program = true;
 
-	// Program explanation/initialization
-	printf("Enter \'1\' to see the sorting of my full name.\n");
-	printf("Enter \'2\' to see the sorting of 4 cubes on screen "
-		" according to their rgb colours.\n");
-	printf("Enter \'3\' to close the program.\n");
-
 	// Run program while running condition is met
 	while(run_program == true) {
 
+		// Program explanation/initialization
+		printf("Enter \'1\' to see the sorting of my full name.\n");
+		printf("Enter \'2\' to see the sorting of 4 cubes on screen "
+			" according to their rgb colours.\n");
+		printf("Enter \'3\' to close the program.\n");
+	
 		// Get user input
 		printf("User Selection: ");
 		cin >> user_input;
@@ -61,7 +63,7 @@ int main(int argc, char **argv) {
 			switch (user_input.at(0)) {
 				case '1':
 					// Name sort
-					nameSort();
+					nameSort("MICHAEL CHYZIAK");
 					break;
 				case '2':
 					// OpenGL Cube Sort
@@ -88,29 +90,30 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-// Sorts the name "MICHAEL CHYZIAK" in ascii order and prints the sorted name.
+// Sorts the input argument in ascii order and prints the sorted name.
 // *space* = 32
 // A = 65
 // B = 66
 // C = 67
 // etc.
-void nameSort() {
+void nameSort(const char* name_unsorted) {
 	
 	// Variables
 	int index;
-	int name_array[NAME_ORIGINAL.length()];
+	int name_unsorted_length = strlen(name_unsorted);
+	int name_array[name_unsorted_length];
 
 	// Convert string to int array
-	for (index = 0; index < NAME_ORIGINAL.length(); index++) {
-		name_array[index] = NAME_ORIGINAL.at(index);
+	for (index = 0; index < name_unsorted_length; index++) {
+		name_array[index] = name_unsorted[index];
 	}
 	
 	// quicksort algorithm
-	quickSort(name_array, 0, NAME_ORIGINAL.length()-1);
+	quickSort(name_array, 0, name_unsorted_length-1);
 
 	// Print output
-	printf("Original name: %s\n", NAME_ORIGINAL);
-	for (index = 0; index < NAME_ORIGINAL.length(); index++) {
+	printf("Original name: %s\n", name_unsorted);
+	for (index = 0; index < name_unsorted_length; index++) {
 		printf("%c", (char) name_array[index]);
 	}
 	printf("\n");
@@ -118,7 +121,6 @@ void nameSort() {
 }
 
 // TODO
-// TODO don't end program when OpenGL window is closed
 void cubeSort(int argc, char **argv) {
 
 	// Initialize GLUT and process user parameters
@@ -134,6 +136,10 @@ void cubeSort(int argc, char **argv) {
 	
 	// Update depth buffer if test passes
         glEnable(GL_DEPTH_TEST);
+
+	// Don't exit when GLUT window closed (uses freeglut.h)
+	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, 
+			GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 
 	// Callback functions
 	glutDisplayFunc(drawObjects);
@@ -158,7 +164,7 @@ void quickSort(int array[], int left_start, int right_start) {
 		while (array[left_index] < pivot_value) {
 			left_index++;
 		}
-		while (array[right_index] < pivot_value) {
+		while (array[right_index] > pivot_value) {
 			right_index--;
 		}
 		if (left_index <= right_index) {
