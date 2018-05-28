@@ -1,7 +1,11 @@
 // Programmer: Michael Chyziak
 // Date: Wednesday March 17, 2018
 //
-// TODO: program definition
+// Shows the result of the quicksort algorithm using two examples. 
+// For one of the examples, the letters of the programmers full name is sorted in ASCII value. 
+// The other example sorts and stacks 4 graphical blocks according to their R value in their RGB color deceleration. 
+// The initial screen is the user specified colors of the random stack of block and the final screen is the sorted assortment of the RGB blocks.
+// A terminal interface is used for the user inputs.
 //
 // g++ visual_quicksort.cc -lm -lglut -lGL -lGLU -o visual_quicksort
 
@@ -10,6 +14,7 @@
 #include <string>
 #include <stdlib.h>
 #include <cstring>
+#include <math.h> // fabs()
 
 // Link GLUT and OpenGL libraries
 #ifdef __APPLE__
@@ -24,20 +29,34 @@
 
 using namespace std;
 
+// Function Declarations
 void drawObjects();
 void drawCube(float startX, float startY, float startZ, 
 		float sizeX, float sizeY, float sizeZ,
 		float angleX, float angleY, float angleZ,
-		float colourRed, float colourGreen, float colourBlue);
+		int colourRed, int colourGreen, int colourBlue);
 void cubeSort(int argc, char **argv);
 void nameSort(const char* name_unsorted);
 void quickSort(int array[], int left_start, int right_start);
 int inputToInt(string user_input);
+void resetCubeCoordinates();
+void detectKeyboard(unsigned char key, int x, int y);
+void updateDisplay(int timer_id);
 
-// The current object being shown on the screen
-enum screenObject {all, cube};
-screenObject currentObject = all;
+// Global coordinates for all 4 cubes (only y needed)
+float cubeYCoordinate [4];
 
+// Global RGB colour values of the four cubes
+int cubeColours[4][3];
+
+// Global cube sort order
+// nth array index stands for nth+1 cube position
+// position can be anywhere from 0 to 3 (top to bottom)
+int cubeOrder[4];
+
+// Global for the status of the GUI
+enum guiStatus {UNSORTED, SORTING, SORTED, RESET};
+guiStatus currentStatus = UNSORTED;
 
 int main(int argc, char **argv) {
 
@@ -68,6 +87,7 @@ int main(int argc, char **argv) {
 					break;
 				case '2':
 					// OpenGL Cube Sort
+					resetCubeCoordinates();
 					cubeSort(argc, argv);
 					break;
 				case '3':
@@ -89,6 +109,21 @@ int main(int argc, char **argv) {
 	}
 	
 	return 0;
+}
+
+// Resets the coordinates of the 4 cubes  
+void resetCubeCoordinates() {	
+
+	// Variables
+	int cube_index;
+	// Starting value of first cube (bottom)
+	float cube_value_y_val = -0.675;
+
+	// Reset coordinates for all 4 cubes 
+	for (cube_index = 0; cube_index < 4; cube_index++) {
+		cubeYCoordinate[cube_index] = cube_value_y_val;
+		cube_value_y_val += 0.45;
+	}
 }
 
 // Sorts the input argument in ascii order and prints the sorted name.
@@ -121,21 +156,27 @@ void nameSort(const char* name_unsorted) {
 
 }
 
-// TODO
+// Sorts 4 cubes with user diffened RGB values
+// Cubes are sorted in order of highest to lowest R values
+// Sorting is done in OpenGL by pressing a button to start sorting
+// A reset button can be pressed to sort again
+// A close button or closing the window closes the OpenGL view
+// Cubes phase through each other into the proper sorted position
 void cubeSort(int argc, char **argv) {
 
 	// Variables
-	int cube_colours[4][3];
 	int cube_index;
 	int colour_index;
 	string colour_string;
 	string user_input;
 	int user_input_int;
+	int cubesRed[4];
 
 	// Example explanation/initialization
 	printf("Four cubes will be shown on screen with custom RGB values.\n");
 	printf("You will be asked to input the RGB values next.\n");
 	printf("The intensity of a colour can be input from 0 to 100.\n");
+	printf("Cubes are initialized from bottom to top.\n");
 	
 	// Get user input
 	for (cube_index = 0; cube_index < 4; cube_index++) {
@@ -157,7 +198,7 @@ void cubeSort(int argc, char **argv) {
 			user_input_int = inputToInt(user_input);
 			if (user_input_int >= 0 && 
 				user_input_int <= 100) {
-				cube_colours[cube_index][colour_index] = 
+				cubeColours[cube_index][colour_index] = 
 					user_input_int;
 			}
 			else {
@@ -168,6 +209,35 @@ void cubeSort(int argc, char **argv) {
 			}
 		}
 	}
+
+	// Initialize cube red inputs into array
+	for (colour_index = 0; colour_index < 4; colour_index++) {
+		cubesRed[colour_index] = cubeColours[colour_index][0];
+	}
+	
+	// quicksort algorithm
+	quickSort(cubesRed, 0, 3);
+
+	// Initialize cubeOrder to unknown values
+	for (cube_index = 0; cube_index < 4; cube_index++) {
+		cubeOrder[cube_index] = -1;
+	}
+
+	// Get proper order of cubes from 0 to 3
+	for (colour_index = 0; colour_index < 4; colour_index++) {
+		for (cube_index = 0; cube_index < 4; cube_index++) {
+			if (cubesRed[colour_index] == cubeColours[cube_index][0]) {
+				// If current cube order is unknown
+				if (cubeOrder[cube_index] == -1) {
+					cubeOrder[cube_index] = colour_index;
+				}
+				break;
+			}
+		}
+	}
+
+	// Instruction message
+	printf("Press *ENTER* to start sorting or *ESC* to return to terminal.\n");
 
 	// Initialize GLUT and process user parameters
 	glutInit(&argc, argv);
@@ -184,15 +254,113 @@ void cubeSort(int argc, char **argv) {
         glEnable(GL_DEPTH_TEST);
 
 	// Don't exit when GLUT window closed (uses freeglut.h)
-	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, 
-			GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 
 	// Callback functions
 	glutDisplayFunc(drawObjects);
+	glutKeyboardFunc(detectKeyboard);
+	glutTimerFunc(1000.0/60.0, updateDisplay, 0);
 
 	// Pass control to GLUT for events
         glutMainLoop();
 }
+
+// Update the display to match the sorted cube quicksort algorithm
+// Cubes will move slowly into place over time
+// The status will change when they have all reached their correct order
+// Ordering is from top to bottom (highest R values at top)
+void updateDisplay(int timer_id) {
+	
+	// Variables
+	float interval = 0.45;
+	float starting = -0.675;
+	int index;
+	float cubeFinalPos;
+	float cubeCurrentPos;
+	int cubesSorted = 0;
+	float epsilon = 0.01;
+
+	// Update cube values
+	if (currentStatus == SORTING || currentStatus == RESET) {
+		for (index = 0; index < 4; index++) {
+
+			// DEBUG
+			// printf("cubeOrder[%d]: %d\n", index, cubeOrder[index]);
+
+			// Cube current and final positions
+			if (currentStatus == SORTING) {
+				cubeFinalPos = starting + (interval * cubeOrder[index]);
+			}
+			else { //currentStatus == RESET
+				cubeFinalPos = starting + (interval * index);
+			}
+			cubeCurrentPos = cubeYCoordinate[index];
+
+			// DEBUG
+			// printf("Final[%d]: %f\n", index, cubeFinalPos);
+			// printf("Current[%d]: %f\n", index, cubeCurrentPos);
+
+			// Use epsilon to see if floats are "equal" 
+			if (fabs(cubeCurrentPos - cubeFinalPos) < epsilon) {
+				cubesSorted++;
+			}
+			else if (cubeCurrentPos < cubeFinalPos) {
+				cubeYCoordinate[index] += 0.05;
+			}
+			else { // cubeCurrentPos > cubeFinalPos
+				cubeYCoordinate[index] -= 0.05;
+			}
+		}
+
+		// Change status if all cubes have been sorted
+		if (cubesSorted == 4) {
+			if (currentStatus == SORTING) {
+				printf("Sorting complete.\n");
+				printf("Press *ENTER* to reset to original configuration or *ESC* to return to terminal.\n");
+				currentStatus = SORTED;
+			}
+			else { //currentStatus == RESET
+				printf("Reset complete.\n");
+				printf("Press *ENTER* to start sorting or *ESC* to return to terminal.\n");
+				currentStatus = UNSORTED;
+			}
+		}
+	}
+
+	// Redisplay
+	glutPostRedisplay();
+
+	// Setup next timer	
+	glutTimerFunc(1000.0/60.0, updateDisplay, 0);
+}
+
+// Continue with sorting when Enter is pressed
+// If sorting is done, Enter will reset cubes to initial states
+// Pressing escape closes the GUI
+void detectKeyboard(unsigned char key, int x, int y) {
+
+	// Enter button pressed, change sorting status
+	if (key == 13) {
+		if (currentStatus == UNSORTED) {
+			printf("Sorting...\n");
+			currentStatus = SORTING;
+		}
+		else if (currentStatus == SORTED) {
+			printf("Resetting...\n");
+			currentStatus = RESET;
+			resetCubeCoordinates();
+		}
+	}
+
+	// If escape is pressed, quit the GUI
+	if (key == 27) {
+		printf("Closing GUI.\n");
+		glutLeaveMainLoop();
+		resetCubeCoordinates();
+		currentStatus = UNSORTED;
+	}
+}
+
 
 // Checks if a string can be converted to integer values.
 // Only integer values from 0 to 100 are accepted and then returned.
@@ -261,10 +429,10 @@ void quickSort(int array[], int left_start, int right_start) {
 
 }
 
-// Draws the cube, pyramid, and diamond
+// Draws the four cubes on screen
+// Cubes are either unsorted, being sorted, or already sorted
+// Text is also displayed to let the user know the state of the sorting
 void drawObjects() {
-
-	// TODO
 
 	// Set Background Color to a light grey
 	glClearColor(0.4, 0.4, 0.4, 1.0);
@@ -276,14 +444,21 @@ void drawObjects() {
 	glMatrixMode(GL_MODELVIEW);
     	glLoadIdentity();
 
-	// Draw cube, pyramid, and/or diamond based on current selection
-	if (currentObject == all) {
-		drawCube(-0.6, 0, 0, 0.4, 0.4, 0.4, -20, 20, 0, 1.0, 0, 0);
-	}
-	else if (currentObject == cube) {
-		drawCube(0, 0, 0, 0.8, 0.8, 0.8, -20, 20, 0, 1.0, 0, 0);
-	}
+	// Draw the four cubes
+	drawCube(0, cubeYCoordinate[0], 0, 0.3, 0.3, 0.3, -20, 20, 0, 
+			cubeColours[0][0], cubeColours[0][1], 
+			cubeColours[0][2]);
+	drawCube(0, cubeYCoordinate[1], 0, 0.3, 0.3, 0.3, -20, 20, 0, 
+			cubeColours[1][0], cubeColours[1][1], 
+			cubeColours[1][2]);
+	drawCube(0, cubeYCoordinate[2], 0, 0.3, 0.3, 0.3, -20, 20, 0, 
+			cubeColours[2][0], cubeColours[2][1], 
+			cubeColours[2][2]);
+	drawCube(0, cubeYCoordinate[3], 0, 0.3, 0.3, 0.3, -20, 20, 0, 
+			cubeColours[3][0], cubeColours[3][1], 
+			cubeColours[3][2]);
 
+	// Swap to buffer
 	glFlush();
 	glutSwapBuffers();
 }
@@ -291,14 +466,20 @@ void drawObjects() {
 // Draws a cube according to the size and location parameters
 // Color is also based on the set parameters
 // start location is middle of cube
+// Colours are given from 0 to 100 in terms of intensity
 void drawCube(float startX, float startY, float startZ, 
 		float sizeX, float sizeY, float sizeZ,
 		float angleX, float angleY, float angleZ,
-		float colourRed, float colourGreen, float colourBlue) {
+		int colourRed, int colourGreen, int colourBlue) {
 	
+	// Variables
 	float dx = sizeX/2;
 	float dy = sizeY/2;
 	float dz = sizeZ/2;
+	// Convert int colour values to corresponding floats
+	float red = colourRed/100.0;
+	float green = colourGreen/100.0;
+	float blue = colourBlue/100.0;
 
 	glPushMatrix();
 
@@ -309,7 +490,7 @@ void drawCube(float startX, float startY, float startZ,
 
 	// Front
     	glBegin(GL_POLYGON);
-    	glColor3f(colourRed, colourGreen, colourBlue);
+    	glColor3f(red, green, blue);
         glVertex3f(startX-dx, startY+dy, startZ-dz);
         glVertex3f(startX+dx, startY+dy, startZ-dz);
         glVertex3f(startX+dx, startY-dy, startZ-dz);
@@ -318,7 +499,7 @@ void drawCube(float startX, float startY, float startZ,
 
 	// Left
         glBegin(GL_POLYGON);
-    	glColor3f(colourRed, colourGreen, colourBlue);
+    	glColor3f(red, green, blue);
         glVertex3f(startX-dx, startY+dy, startZ+dz);
         glVertex3f(startX-dx, startY+dy, startZ-dz);
         glVertex3f(startX-dx, startY-dy, startZ-dz);
@@ -326,8 +507,9 @@ void drawCube(float startX, float startY, float startZ,
         glEnd();
 
         // Right
+	// Mimic light by making 60% of front colour
         glBegin(GL_POLYGON);
-    	glColor3f(colourRed, colourGreen, colourBlue);
+    	glColor3f(red*0.6, green*0.6, blue*0.6);
         glVertex3f(startX+dx, startY+dy, startZ+dz);
         glVertex3f(startX+dx, startY+dy, startZ-dz);
         glVertex3f(startX+dx, startY-dy, startZ-dz);
@@ -335,8 +517,9 @@ void drawCube(float startX, float startY, float startZ,
         glEnd();
 
   	// Top
+	// Mimic light by making 80% of front colour
         glBegin(GL_POLYGON);
-    	glColor3f(colourRed, colourGreen, colourBlue);
+    	glColor3f(red*0.8, green*0.8, blue*0.8);
         glVertex3f(startX+dx, startY+dy, startZ+dz);
         glVertex3f(startX+dx, startY+dy, startZ-dz);
         glVertex3f(startX-dx, startY+dy, startZ-dz);
@@ -345,7 +528,7 @@ void drawCube(float startX, float startY, float startZ,
 
         // Bottom
         glBegin(GL_POLYGON);
-    	glColor3f(colourRed, colourGreen, colourBlue);
+    	glColor3f(red, green, blue);
         glVertex3f(startX+dx, startY-dy, startZ+dz);
         glVertex3f(startX+dx, startY-dy, startZ-dz);
         glVertex3f(startX-dx, startY-dy, startZ-dz);
@@ -354,7 +537,7 @@ void drawCube(float startX, float startY, float startZ,
 
 	// Back
         glBegin(GL_POLYGON);
-    	glColor3f(colourRed, colourGreen, colourBlue);
+    	glColor3f(red, green, blue);
         glVertex3f(startX-dx, startY+dy, startZ+dz);
         glVertex3f(startX+dx, startY+dy, startZ+dz);
         glVertex3f(startX+dx, startY-dy, startZ+dz);
