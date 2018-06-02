@@ -171,6 +171,7 @@ void cubeSort(int argc, char **argv) {
 	string user_input;
 	int user_input_int;
 	int cubesRed[4];
+	bool cubeTaken[4];
 
 	// Example explanation/initialization
 	printf("Four cubes will be shown on screen with custom RGB values.\n");
@@ -211,8 +212,10 @@ void cubeSort(int argc, char **argv) {
 	}
 
 	// Initialize cube red inputs into array
-	for (colour_index = 0; colour_index < 4; colour_index++) {
-		cubesRed[colour_index] = cubeColours[colour_index][0];
+	// Initialize cube taken array to all false
+	for (cube_index = 0; cube_index < 4; cube_index++) {
+		cubesRed[cube_index] = cubeColours[cube_index][0];
+		cubeTaken[cube_index] = false;
 	}
 	
 	// quicksort algorithm
@@ -224,14 +227,15 @@ void cubeSort(int argc, char **argv) {
 	}
 
 	// Get proper order of cubes from 0 to 3
-	for (colour_index = 0; colour_index < 4; colour_index++) {
-		for (cube_index = 0; cube_index < 4; cube_index++) {
-			if (cubesRed[colour_index] == cubeColours[cube_index][0]) {
-				// If current cube order is unknown
-				if (cubeOrder[cube_index] == -1) {
+	for (cube_index = 0; cube_index < 4; cube_index++) {
+		for (colour_index = 0; colour_index < 4; colour_index++) {
+			if (cubeColours[cube_index][0] == cubesRed[colour_index]) {
+				printf("here\n");
+				if (cubeTaken[colour_index] == false) {
 					cubeOrder[cube_index] = colour_index;
+					cubeTaken[colour_index] = true;
+					break;
 				}
-				break;
 			}
 		}
 	}

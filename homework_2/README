@@ -1,0 +1,34 @@
+HOMEWORK 2
+
+SETUP
+The program was run and compiled in Ubuntu 18.04 but should work in most other versions. The following commands were ran in order to get the program working:
+> sudo apt-get update
+> sudo apt-get install freeglut3
+> sudo apt-get install freeglut3-dev
+> sudo apt-get install binutils-gold
+> sudo apt-get install g++ cmake
+> sudo apt-get install libglew-dev
+> sudo apt-get install g++
+> sudo apt-get install mesa-common-dev
+> sudo apt-get install build-essential
+> sudo apt-get install libglew1.5-dev libglm-dev
+> sudo apt-get install mesa-utils
+> sudo apt-get –f install
+
+
+PROGRAM COMPILATION AND RUNNING
+The following command should be executed in order to compile the program:
+> g++ visual_quicksort.cc -lm -lglut -lGL -lGLU -o visual_quicksort
+
+This should create a "visual_quicksort" program which is ran doing the following command:
+> ./visual_quicksort
+
+PROGRAM GUIDE
+Shows the result of the quicksort algorithm using two examples. 
+For one of the examples, the letters of the programmers full name is sorted in ASCII value. 
+The other example sorts and stacks 4 graphical blocks according to their R value in their RGB color deceleration. 
+The initial screen is the user specified colors of the random stack of block (cube 1 is bottom, cube 4 at the top) and the final screen is the sorted assortment of the RGB blocks.
+A terminal interface is used for the user inputs as well as notifying the user of currect actions they can take.
+
+EXTRA
+Four images are provided in .png format. They are actual screenshots of the program running and showing some of the examples in action. On the left is the terminal with the commands and on the right will be the OpenGL GUI (if applicable). The screen can also be maximized if the user wishes.
