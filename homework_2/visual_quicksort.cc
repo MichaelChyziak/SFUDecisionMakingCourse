@@ -230,7 +230,6 @@ void cubeSort(int argc, char **argv) {
 	for (cube_index = 0; cube_index < 4; cube_index++) {
 		for (colour_index = 0; colour_index < 4; colour_index++) {
 			if (cubeColours[cube_index][0] == cubesRed[colour_index]) {
-				printf("here\n");
 				if (cubeTaken[colour_index] == false) {
 					cubeOrder[cube_index] = colour_index;
 					cubeTaken[colour_index] = true;

@@ -32,3 +32,11 @@ A terminal interface is used for the user inputs as well as notifying the user o
 
 EXTRA
 Four images are provided in .png format. They are actual screenshots of the program running and showing some of the examples in action. On the left is the terminal with the commands and on the right will be the OpenGL GUI (if applicable). The screen can also be maximized if the user wishes.
+
+DEMO
+Following the screenshots named demoX (where X is an integer) is a short demo of how the program works. 
+- In demo1.png the program is ran and the user enters "1" which then sorts the developers name alphabetically using the quicksort algorithm. Since there is a space between the first and last name (and it has a lower ascii value than 'A') there is a space shown first before the rest is sorted. The user then ends the program by entering "3".
+- In demo2.png the program is ran but this time "2" is entered by the user. This prompts them to input the RGB values for the 4 cubes (the values input can be seen on the terminal). Once input a GUI appears with the four cubes in an unsorted format starting with Cube1 at the bottom and Cube4 at the top.
+- In demo3.png (continuation from demo2.png) the user presses the *Enter* button on their keyboard which shifts the cubes into a sorted RGB format with the highest R values at the top and descending R values to the bottom.
+- demo4.png (continuation from demo2.png and demo3.png) is the screen after the user presses the *Esc* button on their keyboard. This closes the GUI window and then the user enters "3" which then closes the program.
+This concludes the demo for this program.
