@@ -1,0 +1,37 @@
+HOMEWORK 3
+
+SETUP
+The program was run and compiled in Ubuntu 18.04 but should work in most other versions. The following commands were ran in order to get the program working:
+> sudo apt-get update
+> sudo apt-get install freeglut3
+> sudo apt-get install freeglut3-dev
+> sudo apt-get install binutils-gold
+> sudo apt-get install g++ cmake
+> sudo apt-get install libglew-dev
+> sudo apt-get install g++
+> sudo apt-get install mesa-common-dev
+> sudo apt-get install build-essential
+> sudo apt-get install libglew1.5-dev libglm-dev
+> sudo apt-get install mesa-utils
+> sudo apt-get –f install
+
+PROGRAM COMPILATION AND RUNNING
+The following command should be executed in order to compile the program:
+> g++ decision_rules.cc -lm -lglut -lGL -lGLU -o decision_rules
+
+This should create a "decision_rules" program which is ran doing the following command:
+> ./decision_rules
+
+PROGRAM GUIDE
+A program which determines which act should be chosen in the decision problem with a pre-defined 4x4 matrix. The rules are chosen by the user via the terminal.
+The options that can be selected by the user are as follows: 
+ 1) The maximin rule
+ 2) The maximax rule 
+ 3) The minimax regret rule 
+ 4) The optimism-pessimism rule (alpha > 0.25)
+ 5) The principle of insufficient reason rule
+ 6) Close the program
+After selecting an option it will display which act is the most optimal decision using the chosen rule and bring the user back to the menu again.
+
+EXTRA
+5 images are provided in .png format. They are actual screenshots of the program running and showing all of the options outcomes/answers. Each screenshot is a seperate option chosen, but they all end by selecting option 6, to close the program.

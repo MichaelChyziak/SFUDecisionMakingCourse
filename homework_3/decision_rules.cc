@@ -1,7 +1,13 @@
 // Programmer: Michael Chyziak
 // Date: Wednesday June 2, 2018
 //
-// TODO: program description
+// A program which determines which act should be chosen in the decision problem with a pre-defined 4x4 matrix. 
+// The decision rules that can be selected by the user are as follows: 
+// 1) the maximin rule, 
+// 2) the maximax rule, 
+// 3) the minimax regret rule, 
+// 4) the optimism-pessimism rule (alpha > 0.25), 
+// 5) and the principle of insufficient reason rule.
 //
 // g++ decision_rules.cc -lm -lglut -lGL -lGLU -o decision_rules
 
@@ -116,7 +122,8 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-// TODO
+// The maximin decision rule.
+// Takes the minimum of each act and then selects the largest one of those
 // No need for leximin rule for this matrix, therefore omitting its implementation
 void maximin(int act_matrix[4][4]) {
 	
@@ -150,7 +157,8 @@ void maximin(int act_matrix[4][4]) {
 }
 
 
-// TODO
+// The maximax decision rule.
+// Takes the max of each act, then select the largest one of those
 void maximax(int act_matrix[4][4]) {
 	
 	// Variables
@@ -183,7 +191,12 @@ void maximax(int act_matrix[4][4]) {
 }
 
 
-// TODO
+// The optimism-pessimism decision rule
+// Finds the largest and smallest number in each act
+// Then iterates through an array of alpha values for the calculates:
+// 	alpha * max(act) + (1-alpha) * min(act)
+// The act with the highest calculated value is chosen
+// This is done for each alpha value (starts from 0.3 and increments by 0.05)
 void optimism_pessimism(int act_matrix[4][4]) {
 	
 	// Variables
@@ -238,7 +251,9 @@ void optimism_pessimism(int act_matrix[4][4]) {
 	}
 }
 
-// TODO
+// The minimax regret decision rule
+// Creates a regret table by finding each states max value and subtract it from all other values in that state
+// From the regret table finds the max value of each act and chooses the minimum of those values, thus minimizing regret
 void minimax_regret(int act_matrix[4][4]) {
 	
 	// Variables
@@ -289,7 +304,10 @@ void minimax_regret(int act_matrix[4][4]) {
 	printf("Act a%d\n", best_act+1);
 }
 
-// TODO
+// The principle of insufficient reason decision rule.
+// Assumes each state is as likely to be probable (in this case 1/4 or 0.25)
+// Each act is given a value according to each of its states value times the probability
+// The act with the largest value is the most optimal decision
 void poir(int act_matrix[4][4]) {
 	
 	// Variables
