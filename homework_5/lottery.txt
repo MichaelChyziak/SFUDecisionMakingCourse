@@ -1,0 +1,73 @@
+QUESTION
+You are indifferent between receiving A for sure and a lottery that gives you B with a probability of 0.9 and C with a probability of 0.1. 
+You are also indifferent between receiving A for sure and a lottery that gives you B with a probability of 0.6 and D with a probability of 0.4. 
+All of your preferences satisfy the von Neumann-Morgenstern axioms. 
+a) what do you prefer most, C or D? 
+b) Calculate the (relative) difference in utility between B and C, and between B and D; 
+c) If we stipulate that your utility of B is 1 and your utility of C is 0, what are then your utilities of A and D?
+
+
+ANSWER
+(PART A)	
+Changing the above question into formulas we get:
+	A = 0.9B + 0.1C 		(eq.1)
+	A = 0.6B + 0.4D 		(eq.2)
+Re-arranging the equations we get:
+	0.9B = A - 0.1C
+	0.6B = A - 0.4D
+Dividing these two equations by each other we get:
+	1.5 = 1 + (0.1C/0.4D)
+Further simplification:
+	(1.5*0.4D) = (1*0.4D) + ((0.1C/0.4D)*0.4D)
+	0.6D = 0.4D + 0.1C
+	0.2D = 0.1C 			(eq.3)
+Therefore we find that 10% of C is valued just as much as 20% of D. 
+This implies that C is worth twice as much as D.
+Therefore I would prefer C over D.
+
+(PART B)
+We will use the eq.1, eq.2, and eq.3 from part A to complete this part:
+	A = 0.9B + 0.1C 		(eq.1)
+	A = 0.6B + 0.4D 		(eq.2)
+	0.2D = 0.1C 			(eq.3)
+Combining eq.1 and eq.2 we get eq.4:
+	0.9B + 0.1C = 0.6B + 0.4D	(eq.4)
+Substituting in eq.3 into eq.4 we get:
+	0.9B + 0.2D = 0.6B + 0.4D
+Symplifying further we get:
+	0.3B = 0.2D
+	3B = 2D	
+From this we can see the relative difference in utility between B and D.
+We can see that the utility value of a two D's is worth triple the utility value of B.
+This simply means that the utility of D is 1.5 times the utility of B.
+
+We will now do the same thing but solve for the utility between B and C.
+Substituting in eq.3 into eq.5 we get:
+	0.9B + 0.1C = 0.6B + 2(0.2D)
+	0.9B + 0.1C = 0.6B + 2(0.1C)
+	0.9B + 0.1C = 0.6B + 0.2C
+Symplifying we get:
+	0.3B = 0.1C
+	3B = 1C
+From this we can see the relative difference in utility between B and C.
+We can see that the utility value of a single C is worth triple the utility value of B.
+This simply means that the utility of C is 3 times the utility of B.
+	
+(PART C)	
+Let the following utilities be set:
+	B = 1
+	C = 0
+Plugging into eq.1 we can solve for A:
+	A = 0.9B + 0.1C 		(eq.1)
+	A = 0.9(1) + 0.1(0)
+	A = 0.9
+Therefore A = 0.9 when B = 1 and C = 0.
+
+Solving for D we use this value of A and eq.2:
+	A = 0.6B + 0.4D			(eq.2)
+	0.9 = 0.6(1) + 0.4D
+	0.9 = 0.6 + 0.4D
+	0.3 = 0.4D
+	D = 0.75
+Therefore D = 0.75 when B = 1 and C = 0.
+
