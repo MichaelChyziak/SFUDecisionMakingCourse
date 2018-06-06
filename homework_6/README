@@ -1,0 +1,36 @@
+HOMEWORK 6
+
+SETUP
+The program was run and compiled in Ubuntu 18.04 but should work in most other versions. The following commands were ran in order to get the program working:
+> sudo apt-get update
+> sudo apt-get install freeglut3
+> sudo apt-get install freeglut3-dev
+> sudo apt-get install binutils-gold
+> sudo apt-get install g++ cmake
+> sudo apt-get install libglew-dev
+> sudo apt-get install g++
+> sudo apt-get install mesa-common-dev
+> sudo apt-get install build-essential
+> sudo apt-get install libglew1.5-dev libglm-dev
+> sudo apt-get install mesa-utils
+> sudo apt-get –f install
+
+PROGRAM COMPILATION AND RUNNING
+The following command should be executed in order to compile the program:
+> g++ prisoners.cc -lm -lglut -lGL -lGLU -o prisoners
+
+This should create a "prisoners" program which is ran doing the following command:
+> ./prisoners
+
+PROGRAM GUIDE
+This program shows the user a matrix from the Prisoner's Dilemma Game. 
+The user can either select to determine the best response strategy for each player.
+The matrix can be changed in the source code.
+If the matrix is one where a player doesn't have a best response strategy the program will notify the user.
+The options that can be selected by the user are as follows: 
+ 1) Run the best response strategy for both players
+ 2) Close the program
+
+EXTRA
+An image (demo.png) is provided in .png format. It is an actual screenshot of the program running and showing all of the user options selected by default.
+To change the matrix the user can enter the prisoners.cc file and change the payoff matrix values to get potentially different outcomes.
