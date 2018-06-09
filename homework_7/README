@@ -1,0 +1,36 @@
+HOMEWORK 7
+
+SETUP
+The program was run and compiled in Ubuntu 18.04 but should work in most other versions. The following commands were ran in order to get the program working:
+> sudo apt-get update
+> sudo apt-get install freeglut3
+> sudo apt-get install freeglut3-dev
+> sudo apt-get install binutils-gold
+> sudo apt-get install g++ cmake
+> sudo apt-get install libglew-dev
+> sudo apt-get install g++
+> sudo apt-get install mesa-common-dev
+> sudo apt-get install build-essential
+> sudo apt-get install libglew1.5-dev libglm-dev
+> sudo apt-get install mesa-utils
+> sudo apt-get –f install
+
+
+PROGRAM COMPILATION AND RUNNING
+The following command should be executed in order to compile the program:
+> g++ mixed_nash.cc -lm -lglut -lGL -lGLU -o mixed_nash
+
+This should create a "visual_quicksort" program which is ran doing the following command:
+> ./mixed_nash
+
+PROGRAM GUIDE
+Solves a 2x2 matrix using a mixed nash equilibrium algorithm.
+The matrix can be changed for any other matrix that has a mixed nash equilibrium.
+Changing the matrix to a non-mixed nash equilibrium has unknown results.
+The matrix is shown on the screen and text is shown as well.
+The text explains the outcome of how each player should play and their payoff.
+Also tells the user how to quit the program.
+The screen can be changed in size but it is not recommended as the layout is not guaranteed.
+
+EXTRA
+In image is provided in .png format (demo.png). It is an actual screenshot of the program running and showing the outcome in action. On the left is the terminal which lets the user know how to close the program and on the right right will be the OpenGL GUI. The screen can also be maximized if the user wishes but might affect formatting.
