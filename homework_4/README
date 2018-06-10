@@ -1,0 +1,48 @@
+HOMEWORK 4
+
+SETUP
+The program was run and compiled in Ubuntu 18.04 but should work in most other versions. The following commands were ran in order to get the program working:
+> sudo apt-get update
+> sudo apt-get install freeglut3
+> sudo apt-get install freeglut3-dev
+> sudo apt-get install binutils-gold
+> sudo apt-get install g++ cmake
+> sudo apt-get install libglew-dev
+> sudo apt-get install g++
+> sudo apt-get install mesa-common-dev
+> sudo apt-get install build-essential
+> sudo apt-get install libglew1.5-dev libglm-dev
+> sudo apt-get install mesa-utils
+> sudo apt-get –f install
+
+
+PROGRAM COMPILATION AND RUNNING
+The following command should be executed in order to compile the program:
+> g++ roulette.cc -lm -lglut -lGL -lGLU -o roulette
+
+This should create a "roulette" program which is ran doing the following command:
+> ./roulette
+
+PROGRAM GUIDE
+A program which allows the user to play a game of roulette.
+The user can select to either play, view the decision matrix, or view the decision tree.
+While viewing the decision tree the user is also able to play.
+The matrix and decision tree will allow the user to know their potential outcomes.
+There are 38 values the user can choose from (0-37 and 00).
+They can bet between values of 1-100.
+The default bet value is set to 1.
+For a win the user gets 35 their bet + their bet.
+For a lose the user gets nothing.
+The OpenGL GUI is idle/frozen while the user is selecting their bet/guess.
+
+EXTRA
+Five images are provided in .png format. They are actual screenshots of the program running and showing some of the examples in action. On the left is the terminal with the commands and on the right will be the OpenGL GUI (if applicable). The screen can also be maximized if the user wishes but it is strongly recommended not to as that may ruin some of the ratio's of text to figures.
+
+DEMO
+Following screenshots named demoX (where X is an integer) is a short demo of how the program works. 
+- In demo1.png the program is ran and the user enters "1" which start the roulette game. When prompted to bet the user inputs the bet amount of 5 and guesses a value of 29. The actual outcome is 21 and as such the player losses their bet.
+- In demo2.png the user attempts to guess the value of 2 with a bet amount of 2 until they win. At the bottom of the screen we can see that finally the outcome is 2 and the user wins. Since they bet 2, a win provides the bet*35 + the bet. Thus the bet*35 = 70 + 2 = 72, which is the value that the user wins.
+- In demo3.png the user selects from the menu option 2 which shows the decision matrix. We can see that for an arbitrary value of X that not playing will always allow the user to keep X regardless of the outcome, while playing roulette gives the user a 1/38 chance to win 36 times their bet or a 37/38 chance of getting nothing.
+- demo4.png displays what happens when the user selects the third option in the menu. This opens up the OpenGL GUI which shows a decision tree of the previous bet. The previous bet was 2 so it is updated as well as all the proper outcomes regarding that bet. A new menu is shown to the user that is slightly different (yet similar) to the main menu.
+- demo5.png shows the user selecting 1 while the GUI is open. Then the bet amount of 89 is chosen and a guess of 30. The outcome is 21 and the player losses. However after the outcome the GUI is updated with the new bet value and the possible outcomes that may have resulted. If the user got lucky they might have just won 3204 from that intial bet of 89.
+This concludes the demo for this program. The user can select 3 to close the GUI and then close the program by selecting 4.

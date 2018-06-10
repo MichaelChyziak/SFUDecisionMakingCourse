@@ -1,7 +1,16 @@
 // Programmer: Michael Chyziak
 // Date: Wednesday June 2, 2018
 //
-// TODO: program description
+// A program which allows the user to play a game of roulette.
+// The user can select to either play, view the decision matrix, or view the decision tree.
+// While viewing the decision tree the user is also able to play.
+// The matrix and decision tree will allow the user to know their potential outcomes.
+// There are 38 values the user can choose from (0-37 and 00).
+// They can bet between values of 1-100.
+// The default bet value is set to 1.
+// For a win the user gets 35 their bet + their bet.
+// For a lose the user gets nothing.
+// The OpenGL GUI is idle/frozen while the user is selecting their bet/guess.
 //
 // g++ roulette.cc -lm -lglut -lGL -lGLU -o roulette
 
@@ -26,18 +35,16 @@
 using namespace std;
 
 // Function Declarations
-void drawObjects(); // TODO investigate
-void drawCube(float startX, float startY, float startZ, 
-		float sizeX, float sizeY, float sizeZ,
-		float angleX, float angleY, float angleZ,
-		int colourRed, int colourGreen, int colourBlue); // TODO investigate
-void cubeSort(int argc, char **argv); // TODO investigate
+void drawObjects();
 int inputToInt(string user_input);
 void playRoulette();
-void detectKeyboard(unsigned char key, int x, int y); // TODO investigate
+void showMatrix();
+void showTree(int argc, char** argv);
+void updateDisplay(int timer_id);
+void idleMain();
+void displayString(float x, float y, string input);
 
-// Roulette game type
-enum rouletteType {Matrix, Tree};
+int global_bet_amount = 1;
 
 int main(int argc, char **argv) {
 
@@ -45,13 +52,23 @@ int main(int argc, char **argv) {
 	string user_input;
 	bool run_program = true;
 
+	// Program explanation
+	printf("A roulette wheel has 38 different values, numbers 0-36 and 00.\n");
+	printf("The user can only bet dollar amounts between 1 and 100 (integer values).\n");
+	printf("If the user wins they will get 35 times their bet + their original bet.\n");
+	printf("If the user losses they will get nothing.\n");
+	printf("The user can view a decision matrix to understand all of their decisions.\n");
+	printf("They can also view a decision tree in OpenGL.\n");
+	printf("Good Luck.\n\n");
+
 	// Run program while running condition is met
 	while(run_program == true) {
 
 		// Program explanation/initialization
-		printf("Enter \'1\' to play roulette with a decision matrix.\n");
-		printf("Enter \'2\' to play roulette with a decision tree in OpenGL.\n");
-		printf("Enter \'3\' to close the program.\n");
+		printf("Enter \'1\' to play roulette.\n");
+		printf("Enter \'2\' to view the decision matrix.\n");
+		printf("Enter \'3\' to view the decision tree in OpenGL.\n");
+		printf("Enter \'4\' to close the program.\n");
 	
 		// Get user input
 		printf("User Selection: ");
@@ -61,14 +78,18 @@ int main(int argc, char **argv) {
 		if (user_input.length() == 1) {
 			switch (user_input.at(0)) {
 				case '1':
-					// Decision matrix
-					play_roulette(Matrix);
+					// Play Roulette
+					playRoulette();
 					break;
 				case '2':
-					// Decision tree
-					play_roulette(Tree);
+					// Decision matrix
+					showMatrix();
 					break;
 				case '3':
+					// Decision tree
+					showTree(argc, argv);
+					break;
+				case '4':
 					// Close program
 					printf("Closing program.\n");
 					run_program = false;
@@ -90,7 +111,7 @@ int main(int argc, char **argv) {
 }
 
 // Checks if a string can be converted to integer values.
-// Only integer values from 0 to 100 are accepted and then returned.
+// Only integer values from 0 to 999 are accepted and then returned.
 // Otherwise -1 will be returned.
 int inputToInt(string user_input) {
 	
@@ -117,104 +138,99 @@ int inputToInt(string user_input) {
 	return stoi(user_input, nullptr);
 }
 
-// TODO
-void playRoulette(rouletteType game_type) {
+// Plays a roulette game
+// Lets user bet from 1-100 and pick a guess from 0-37
+// If they guess right they get their original bet + 35 times their bet
+// If they guess wrong they get nothing
+void playRoulette() {
 
+	// Variables	
+	bool valid_input = false;
+	int user_bet_amount;
+	int user_guess_value;
+	int game_outcome;
+	string user_input;
+
+	// User bet value
+	// Check if user input is a number between 1 and 100
+	printf("\n");
+	while (valid_input == false) {
+		printf("Please input the bet amount (1-100):\n");
+		cin >> user_input;
+		user_bet_amount = inputToInt(user_input);
+		if (user_bet_amount >= 1 && user_bet_amount <= 100) {
+			valid_input = true;
+			global_bet_amount = user_bet_amount;
+		}
+		else {
+			// Invalid input
+			printf("Error: invalid user input. Try again.\n");
+		}
+	}
+
+	// Reset input validity
+	valid_input = false;
+
+	// User guess value
+	// Check if user input is a number between 0 and 37 (37 = 00)
+	while (valid_input == false) {
+		printf("Please input the guess value 0-37 (37 = 00):\n");
+		cin >> user_input;
+		user_guess_value = inputToInt(user_input);
+		if (user_guess_value >= 0 && user_guess_value <= 37) {
+			valid_input = true;
+		}
+		else {
+			// Invalid input
+			printf("Error: invalid user input. Try again.\n");
+		}
+	}
+
+	// Roulette game outcome
+	game_outcome = rand() % 38; //provides number between 0 and 37
+	printf("\n");
+	printf("Roulette outcome is: %d\n", game_outcome);
+
+	// Check if winner
+	if (game_outcome == user_guess_value) {
+		printf("Congratulations, you won: %d\n", user_bet_amount*35+user_bet_amount);
+	}
+	else {
+		printf("Sorry, better luck next time.\n");
+	}
+	printf("\n");
 }
 
-
-
-
-
-// TODO everything after here has not been changed
-
-
-
-// Sorts 4 cubes with user diffened RGB values
-// Cubes are sorted in order of highest to lowest R values
-// Sorting is done in OpenGL by pressing a button to start sorting
-// A reset button can be pressed to sort again
-// A close button or closing the window closes the OpenGL view
-// Cubes phase through each other into the proper sorted position
-void cubeSort(int argc, char **argv) {
-
-	// Variables
-	int cube_index;
-	int colour_index;
-	string colour_string;
-	string user_input;
-	int user_input_int;
-	int cubesRed[4];
-	bool cubeTaken[4];
-
-	// Example explanation/initialization
-	printf("Four cubes will be shown on screen with custom RGB values.\n");
-	printf("You will be asked to input the RGB values next.\n");
-	printf("The intensity of a colour can be input from 0 to 100.\n");
-	printf("Cubes are initialized from bottom to top.\n");
+// Shows the decision matrix for the game of roulette
+void showMatrix() {
 	
-	// Get user input
-	for (cube_index = 0; cube_index < 4; cube_index++) {
-		for (colour_index = 0; colour_index < 3; colour_index++) {
-			if (colour_index == 0) {
-				colour_string = "red";
-			}
-			else if (colour_index == 1) {
-				colour_string = "green";
-			}
-			else {
-				colour_string = "blue";
-			}
-			printf("Cube %d (%s intensity): ", cube_index + 1, 
-				colour_string.c_str());
-			cin >> user_input;
+	// Decision Matrix explanation
+	printf("\n");
+	printf("ROULETTE DECISION MATRIX\n");
+	printf("Assume bet amount = X\n");
+	printf("All values are in dollars (no cents)\n");
+	printf("p = probability\n");
 
-			// Check if user input is a number between 0 and 100
-			user_input_int = inputToInt(user_input);
-			if (user_input_int >= 0 && 
-				user_input_int <= 100) {
-				cubeColours[cube_index][colour_index] = 
-					user_input_int;
-			}
-			else {
-				// Invalid input
-				printf("Error: invalid user input. Try "
-					"again.\n");
-				colour_index--;
-			}
-		}
-	}
+	// Decision Matrix
+	printf("|------------|--------------------------------|\n");
+	printf("|   Player   |        Roulette Outcome        |\n");
+	printf("|   Choice   |  Win(p=1/38)  |  Lose(p=37/38) |\n");
+	printf("|------------|---------------|----------------|\n");
+	printf("|    Play    |  35X+X = 36X  |       0        |\n");
+	printf("| Don't Play |       X       |       X        |\n");
+	printf("|------------|---------------|----------------|\n");
+	printf("\n");
+}
 
-	// Initialize cube red inputs into array
-	// Initialize cube taken array to all false
-	for (cube_index = 0; cube_index < 4; cube_index++) {
-		cubesRed[cube_index] = cubeColours[cube_index][0];
-		cubeTaken[cube_index] = false;
-	}
-	
-	// quicksort algorithm
-	quickSort(cubesRed, 0, 3);
+// Sets up the OpenGL GUI for the decision tree and runs the sub-main function
+// Allows users to play roulette and see the tree update
+void showTree(int argc, char** argv) {
 
-	// Initialize cubeOrder to unknown values
-	for (cube_index = 0; cube_index < 4; cube_index++) {
-		cubeOrder[cube_index] = -1;
-	}
-
-	// Get proper order of cubes from 0 to 3
-	for (cube_index = 0; cube_index < 4; cube_index++) {
-		for (colour_index = 0; colour_index < 4; colour_index++) {
-			if (cubeColours[cube_index][0] == cubesRed[colour_index]) {
-				if (cubeTaken[colour_index] == false) {
-					cubeOrder[cube_index] = colour_index;
-					cubeTaken[colour_index] = true;
-					break;
-				}
-			}
-		}
-	}
-
-	// Instruction message
-	printf("Press *ENTER* to start sorting or *ESC* to return to terminal.\n");
+	// Terminal message
+	printf("\n");
+	printf("OpenGL Decision Tree is now displaying.\n");
+	printf("Play a roulette game to see the tree update live.\n");
+	printf("\n");
 
 	// Initialize GLUT and process user parameters
 	glutInit(&argc, argv);
@@ -225,7 +241,7 @@ void cubeSort(int argc, char **argv) {
 	// Create window
 	glutInitWindowSize(800, 600);
 	glutInitWindowPosition(100, 100);
-	glutCreateWindow("ENSC482 Michael Chyziak - Homework 2");
+	glutCreateWindow("ENSC482 Michael Chyziak - Homework 4");
 	
 	// Update depth buffer if test passes
         glEnable(GL_DEPTH_TEST);
@@ -235,112 +251,34 @@ void cubeSort(int argc, char **argv) {
 
 	// Callback functions
 	glutDisplayFunc(drawObjects);
-	glutKeyboardFunc(detectKeyboard);
-	glutTimerFunc(1000.0/60.0, updateDisplay, 0);
+	glutTimerFunc(1, updateDisplay, 0);
 
 	// Pass control to GLUT for events
-        glutMainLoop();
+	glutMainLoop();
+
+	// Message once OpenGL GUI is closed
+	printf("\n");
+	printf("OpenGL GUI closed.\n");
+	printf("\n");
 }
 
-// Update the display to match the sorted cube quicksort algorithm
-// Cubes will move slowly into place over time
-// The status will change when they have all reached their correct order
-// Ordering is from top to bottom (highest R values at top)
+// Ask the user for some inputs and then re-updates the decision tree
+// While getting input from user the GUI is 'frozen'/idle
 void updateDisplay(int timer_id) {
-	
-	// Variables
-	float interval = 0.45;
-	float starting = -0.675;
-	int index;
-	float cubeFinalPos;
-	float cubeCurrentPos;
-	int cubesSorted = 0;
-	float epsilon = 0.01;
 
-	// Update cube values
-	if (currentStatus == SORTING || currentStatus == RESET) {
-		for (index = 0; index < 4; index++) {
-
-			// DEBUG
-			// printf("cubeOrder[%d]: %d\n", index, cubeOrder[index]);
-
-			// Cube current and final positions
-			if (currentStatus == SORTING) {
-				cubeFinalPos = starting + (interval * cubeOrder[index]);
-			}
-			else { //currentStatus == RESET
-				cubeFinalPos = starting + (interval * index);
-			}
-			cubeCurrentPos = cubeYCoordinate[index];
-
-			// DEBUG
-			// printf("Final[%d]: %f\n", index, cubeFinalPos);
-			// printf("Current[%d]: %f\n", index, cubeCurrentPos);
-
-			// Use epsilon to see if floats are "equal" 
-			if (fabs(cubeCurrentPos - cubeFinalPos) < epsilon) {
-				cubesSorted++;
-			}
-			else if (cubeCurrentPos < cubeFinalPos) {
-				cubeYCoordinate[index] += 0.05;
-			}
-			else { // cubeCurrentPos > cubeFinalPos
-				cubeYCoordinate[index] -= 0.05;
-			}
-		}
-
-		// Change status if all cubes have been sorted
-		if (cubesSorted == 4) {
-			if (currentStatus == SORTING) {
-				printf("Sorting complete.\n");
-				printf("Press *ENTER* to reset to original configuration or *ESC* to return to terminal.\n");
-				currentStatus = SORTED;
-			}
-			else { //currentStatus == RESET
-				printf("Reset complete.\n");
-				printf("Press *ENTER* to start sorting or *ESC* to return to terminal.\n");
-				currentStatus = UNSORTED;
-			}
-		}
-	}
+	// Another main which causes the GUI to be idle while running
+	idleMain();
 
 	// Redisplay
 	glutPostRedisplay();
 
 	// Setup next timer	
-	glutTimerFunc(1000.0/60.0, updateDisplay, 0);
+	glutTimerFunc(1, updateDisplay, 0);
 }
 
-// Continue with sorting when Enter is pressed
-// If sorting is done, Enter will reset cubes to initial states
-// Pressing escape closes the GUI
-void detectKeyboard(unsigned char key, int x, int y) {
-
-	// Enter button pressed, change sorting status
-	if (key == 13) {
-		if (currentStatus == UNSORTED) {
-			printf("Sorting...\n");
-			currentStatus = SORTING;
-		}
-		else if (currentStatus == SORTED) {
-			printf("Resetting...\n");
-			currentStatus = RESET;
-			resetCubeCoordinates();
-		}
-	}
-
-	// If escape is pressed, quit the GUI
-	if (key == 27) {
-		printf("Closing GUI.\n");
-		glutLeaveMainLoop();
-		resetCubeCoordinates();
-		currentStatus = UNSORTED;
-	}
-}
-
-// Draws the four cubes on screen
-// Cubes are either unsorted, being sorted, or already sorted
-// Text is also displayed to let the user know the state of the sorting
+// Draws the decision tree as well as the text for the roulette game
+// The amount bet and the outcomes can be changed dynamically
+// Everything else is static
 void drawObjects() {
 
 	// Set Background Color to a light grey
@@ -353,106 +291,145 @@ void drawObjects() {
 	glMatrixMode(GL_MODELVIEW);
     	glLoadIdentity();
 
-	// Draw the four cubes
-	drawCube(0, cubeYCoordinate[0], 0, 0.3, 0.3, 0.3, -20, 20, 0, 
-			cubeColours[0][0], cubeColours[0][1], 
-			cubeColours[0][2]);
-	drawCube(0, cubeYCoordinate[1], 0, 0.3, 0.3, 0.3, -20, 20, 0, 
-			cubeColours[1][0], cubeColours[1][1], 
-			cubeColours[1][2]);
-	drawCube(0, cubeYCoordinate[2], 0, 0.3, 0.3, 0.3, -20, 20, 0, 
-			cubeColours[2][0], cubeColours[2][1], 
-			cubeColours[2][2]);
-	drawCube(0, cubeYCoordinate[3], 0, 0.3, 0.3, 0.3, -20, 20, 0, 
-			cubeColours[3][0], cubeColours[3][1], 
-			cubeColours[3][2]);
+	// Decision Tree Title and info text
+	displayString(-0.4, 0.9, "Live Updated Roulette Decision Tree");
+	
+	// Decision Tree
+	// Squares
+	glBegin(GL_POLYGON);
+	glColor3f(0, 0, 1);
+	glVertex2f(-0.82, 0.22);
+	glVertex2f(-0.78, 0.22);
+	glVertex2f(-0.78, 0.18);
+	glVertex2f(-0.82, 0.18);
+	glEnd();
+	glBegin(GL_POLYGON);
+	glColor3f(0, 0, 1);
+	glVertex2f(-0.22, -0.18);
+	glVertex2f(-0.18, -0.18);
+	glVertex2f(-0.18, -0.22);
+	glVertex2f(-0.22, -0.22);
+	glEnd();
+	glBegin(GL_POLYGON);
+	glColor3f(0, 0, 1);
+	glVertex2f(0.38, 0.22);
+	glVertex2f(0.42, 0.22);
+	glVertex2f(0.42, 0.18);
+	glVertex2f(0.38, 0.18);
+	glEnd();
+	glBegin(GL_POLYGON);
+	glColor3f(0, 0, 1);
+	glVertex2f(-0.22, 0.62);
+	glVertex2f(-0.18, 0.62);
+	glVertex2f(-0.18, 0.58);
+	glVertex2f(-0.22, 0.58);
+	glEnd();
+	glBegin(GL_POLYGON);
+	glColor3f(0, 0, 1);
+	glVertex2f(0.38, -0.58);
+	glVertex2f(0.42, -0.58);
+	glVertex2f(0.42, -0.62);
+	glVertex2f(0.38, -0.62);
+	glEnd();
+	// Lines
+	glBegin(GL_LINES);
+	glColor3f(0, 0, 0);
+	glVertex2f(-0.8, 0.2);
+	glVertex2f(-0.2, -0.2);
+	glEnd();
+	glBegin(GL_LINES);
+	glColor3f(0, 0, 0);
+	glVertex2f(-0.8, 0.2);
+	glVertex2f(-0.2, 0.6);
+	glEnd();
+	glBegin(GL_LINES);
+	glColor3f(0, 0, 0);
+	glVertex2f(-0.2, -0.2);
+	glVertex2f(0.4, 0.2);
+	glEnd();
+	glBegin(GL_LINES);
+	glColor3f(0, 0, 0);
+	glVertex2f(-0.2, -0.2);
+	glVertex2f(0.4, -0.6);
+	glEnd();
+	// Text
+	displayString(-0.88, 0.25, "Start");
+	displayString(-0.3, 0.65, "Don't Play");
+	displayString(-0.5, -0.3, "Play (Bet = " + to_string(global_bet_amount) + ")");
+	displayString(0.35, 0.25, "Win");
+	displayString(0.35, -0.55, "Lose");
+	displayString(0.1, -0.05, "P = 1/38");
+	displayString(0.1, -0.4, "1-P = 37/38");
+	displayString(-0.15, 0.57, "Outcome = " + to_string(global_bet_amount));
+	displayString(0.45, 0.17, "Outcome = " + to_string(global_bet_amount * 36));
+	displayString(0.45, -0.63, "Outcome = 0");
 
 	// Swap to buffer
 	glFlush();
 	glutSwapBuffers();
 }
 
-// Draws a cube according to the size and location parameters
-// Color is also based on the set parameters
-// start location is middle of cube
-// Colours are given from 0 to 100 in terms of intensity
-void drawCube(float startX, float startY, float startZ, 
-		float sizeX, float sizeY, float sizeZ,
-		float angleX, float angleY, float angleZ,
-		int colourRed, int colourGreen, int colourBlue) {
+// Displays the input string on the screen at co-ordinates x and y
+// Display is done in bitmap 18 font helvetica, black
+void displayString(float x, float y, string input) {
 	
-	// Variables
-	float dx = sizeX/2;
-	float dy = sizeY/2;
-	float dz = sizeZ/2;
-	// Convert int colour values to corresponding floats
-	float red = colourRed/100.0;
-	float green = colourGreen/100.0;
-	float blue = colourBlue/100.0;
+	// Cast string to specific format for glutBitmapString function
+	const unsigned char* input_cast = reinterpret_cast<const unsigned char*>
+		(input.c_str());
 
-	glPushMatrix();
-
-	// Rotate cube accordingly
-	glRotatef(angleX, 1.0, 0.0, 0.0);
-	glRotatef(angleY, 0.0, 1.0, 0.0);
-	glRotatef(angleZ, 0.0, 0.0, 1.0);
-
-	// Front
-    	glBegin(GL_POLYGON);
-    	glColor3f(red, green, blue);
-        glVertex3f(startX-dx, startY+dy, startZ-dz);
-        glVertex3f(startX+dx, startY+dy, startZ-dz);
-        glVertex3f(startX+dx, startY-dy, startZ-dz);
-        glVertex3f(startX-dx, startY-dy, startZ-dz);
-    	glEnd();
-
-	// Left
-        glBegin(GL_POLYGON);
-    	glColor3f(red, green, blue);
-        glVertex3f(startX-dx, startY+dy, startZ+dz);
-        glVertex3f(startX-dx, startY+dy, startZ-dz);
-        glVertex3f(startX-dx, startY-dy, startZ-dz);
-        glVertex3f(startX-dx, startY-dy, startZ+dz);
-        glEnd();
-
-        // Right
-	// Mimic light by making 60% of front colour
-        glBegin(GL_POLYGON);
-    	glColor3f(red*0.6, green*0.6, blue*0.6);
-        glVertex3f(startX+dx, startY+dy, startZ+dz);
-        glVertex3f(startX+dx, startY+dy, startZ-dz);
-        glVertex3f(startX+dx, startY-dy, startZ-dz);
-        glVertex3f(startX+dx, startY-dy, startZ+dz);
-        glEnd();
-
-  	// Top
-	// Mimic light by making 80% of front colour
-        glBegin(GL_POLYGON);
-    	glColor3f(red*0.8, green*0.8, blue*0.8);
-        glVertex3f(startX+dx, startY+dy, startZ+dz);
-        glVertex3f(startX+dx, startY+dy, startZ-dz);
-        glVertex3f(startX-dx, startY+dy, startZ-dz);
-        glVertex3f(startX-dx, startY+dy, startZ+dz);
-        glEnd();
-
-        // Bottom
-        glBegin(GL_POLYGON);
-    	glColor3f(red, green, blue);
-        glVertex3f(startX+dx, startY-dy, startZ+dz);
-        glVertex3f(startX+dx, startY-dy, startZ-dz);
-        glVertex3f(startX-dx, startY-dy, startZ-dz);
-        glVertex3f(startX-dx, startY-dy, startZ+dz);
-        glEnd();
-
-	// Back
-        glBegin(GL_POLYGON);
-    	glColor3f(red, green, blue);
-        glVertex3f(startX-dx, startY+dy, startZ+dz);
-        glVertex3f(startX+dx, startY+dy, startZ+dz);
-        glVertex3f(startX+dx, startY-dy, startZ+dz);
-        glVertex3f(startX-dx, startY-dy, startZ+dz);
-        glEnd();
-	
-	glPopMatrix();
+	// Display black string on screen
+	glColor3f(0, 0, 0);
+	glRasterPos2f(x, y);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_18, input_cast);
 }
 
+// Runs an alternate main that causes the OpenGL GUI to IDLE until this function completes
+// The user can still play roulette and view the decision matrix
+// Once this function completes the decision tree is updated
+void idleMain() {
+
+	// Variables
+	string user_input;
+	bool run_gui = true;
+
+	// Run program while running condition is met
+	while(run_gui == true) {
+
+		// Program explanation/initialization
+		printf("Enter \'1\' to play roulette.\n");
+		printf("Enter \'2\' to view the decision matrix.\n");
+		printf("Enter \'3\' to close the decision tree in OpenGL.\n");
+	
+		// Get user input
+		printf("User Selection: ");
+		cin >> user_input;
+
+		// Check if input is valid
+		if (user_input.length() == 1) {
+			switch (user_input.at(0)) {
+				case '1':
+					// Play Roulette
+					playRoulette();
+					return;
+				case '2':
+					// Decision matrix
+					showMatrix();
+					return;
+				case '3':
+					// Close Decision tree
+					run_gui = false;
+					glutLeaveMainLoop();
+					break;
+				default:
+					// Invalid input
+					printf("Error: invalid user input. Try "
+						"again.\n");
+					break;
+			}
+		}
+		else {
+			// Invalid input
+			printf("Error: invalid user input. Try again.\n");
+		}
+	}
+}
