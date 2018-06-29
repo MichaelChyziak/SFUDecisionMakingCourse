@@ -34,17 +34,24 @@ Problem 1 (30) – By referring to any known public dataset (some examples are l
 using namespace std;
 
 // Function Declarations
-// TODO
 int createHistogram(unsigned int histogram[52]);
+float calculateMean(unsigned int histogram[52]);
+float calculateVariance(unsigned int histogram[52], float mean);
+void detectKeyboard(unsigned char key, int x, int y);
+void displayGUI(int argc, char **argv);
+void drawScreen();
+void displayString(float x, float y, string input);
 
 int main(int argc, char **argv) {
 
 	// Variables
 	unsigned int histogram[52] = {0}; // Each array index is equal to a cards final value
 	int status;
+	float mean;
+	float variance;
 
 	// Program explanation/initialization
-	// TODO (explain how cards are stored)
+	// TODO (explain how cards are stored in printf statements)
 	// Cards stored as tuples (suit, value)
 	// Suits are:
 	// 1 = hearts
@@ -68,22 +75,27 @@ int main(int argc, char **argv) {
 	if (status == -1) {
 		return status;		
 	}
-	// TODO REMOVE JUSDT DEBUG FOR NOW
+	// TODO REMOVE: JUST DEBUG FOR NOW
 	int i;
 	for(i=0;i<52;i++){
 		printf("histogram[%d] = %d\n", i+1, histogram[i]);
 	}	
 
 	// Evaluate mean
-	// TODO
-	
+	mean = calculateMean(histogram);
+
 	// Evaluate variance
-	// TODO
+	variance = calculateVariance(histogram, mean);
 	
-	// Run GUI????? TODO
+	// TODO: Bhattacharyya with 2 histograms??? (where does 2nd come from?)
+	
+	// Run GUI
+	displayGUI(argc, argv);
 }
 
-// TODO
+// Creates a histogram where the value of each card is put into the respective array index
+// value of card = array - 1
+// number at that index = number of that card type from input file
 // Return -1 = error
 // Return 0 = success
 int createHistogram(unsigned int histogram[52]) {
@@ -137,18 +149,67 @@ int createHistogram(unsigned int histogram[52]) {
 	fclose(file_pointer);
 }
 
+// Calculates the mean value from a histogram and returns the mean
+float calculateMean(unsigned int histogram[52]) {
+        
+	// Variables
+	int histogram_index;
+	int number_of_values = 0;
+	int sum_value = 0;
+	float mean_value;
 
-//TODO EVERYTHING BELOW HERE HAS NOT BEEN TOUCHED YET, SHOULD PROBABLY BE REMOVED????????
-//
-//
-//
-//
-//
-/*
-// Draws and solves the matrix using mixed Nash equilibrium
-// Also adds text to display the results
+	// Calculates the sum of all of the values and the number of values taken
+	for (histogram_index = 0; histogram_index < 52; histogram_index++) {
+		sum_value += (histogram[histogram_index] * (histogram_index + 1));
+		number_of_values += histogram[histogram_index];                
+	}
+        
+	// Calculates and returns the mean
+	mean_value = ((float) sum_value) / ((float) number_of_values);
+	return mean_value;
+}
+
+// Calculates and returns the variance when the histogram and mean is provided
+float calculateVariance(unsigned int histogram[52], float mean) {
+
+	// Variables
+	int histogram_index;
+	int number_of_values = 0;
+	float summation_value = 0;
+	float variance;
+
+	// Calculates the number of values in the histogram
+	for (histogram_index = 0; histogram_index < 52; histogram_index++) {
+		number_of_values += histogram[histogram_index];                
+	}
+
+	// Calculates the summation of (value - mean)^2
+	for (histogram_index = 0; histogram_index < 52; histogram_index++) {
+		summation_value = (((histogram_index + 1) - mean) * ((histogram_index + 1) - mean));
+		summation_value = summation_value * histogram[histogram_index];
+	}
+
+	// Calculates the variance and returns the value
+	variance = 1 / (number_of_values - 1);
+	variance = variance * summation_value;
+	return variance;
+}
+
+// Pressing escape closes the GUI
+void detectKeyboard(unsigned char key, int x, int y) {
+
+        // If escape is pressed, quit the GUI
+        if (key == 27) {
+                printf("Closing GUI.\n");
+                glutLeaveMainLoop();
+        }
+}
+
+// Draws the histogram 
+// shows the univariate Gaussian distribution with the mean and variance already calculated
+// TODO Bayychetta? or w/e the spelling is with 2 histograms?????
 // Sets up OpenGL
-void mixedNash(int argc, char **argv) {
+void displayGUI(int argc, char **argv) {
 
 	// Initialize GLUT and process user parameters
         glutInit(&argc, argv);
@@ -157,7 +218,7 @@ void mixedNash(int argc, char **argv) {
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
         // Create window
-        glutInitWindowSize(800, 600);
+        glutInitWindowSize(1200, 900);
         glutInitWindowPosition(100, 100);
         glutCreateWindow("ENSC482 Michael Chyziak - Homework 1");
 
@@ -172,18 +233,7 @@ void mixedNash(int argc, char **argv) {
         glutMainLoop();
 }
 
-// Pressing escape closes the GUI
-void detectKeyboard(unsigned char key, int x, int y) {
-
-        // If escape is pressed, quit the GUI
-        if (key == 27) {
-                printf("Closing GUI.\n");
-                glutLeaveMainLoop();
-        }
-}
-
-// Draws and solves the matrix using mixed Nash equilibrium
-// Also adds text to display the results
+// Draws the histogram and the overlayed invariante Gaussian distribution
 void drawScreen() {
 
         // Set Background Color to a light grey
@@ -196,8 +246,16 @@ void drawScreen() {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
-	// Payoff Matrix
-	// Grid Lines
+	// Draw histogram
+	// TODO
+	
+	// Draw univariate Gaussian distribution
+	// TODO
+	
+	// Display mean and variance
+	// TODO
+	
+	// TODO REMOVE START
 	glBegin(GL_LINES);
 	glColor3f(0, 0, 0);
 	glVertex2f(-0.55f, 0.975f);
@@ -250,14 +308,6 @@ void drawScreen() {
 	displayString(-0.5f, 0.6f, "Option 2");
 	displayString(-0.15f, 0.8f, "Option 1");
 	displayString(0.15f, 0.8f, "Option 2");
-	displayString(-0.1f, 0.7f, to_string(payoff_matrix[0][0][0]) + "," + 
-			to_string(payoff_matrix[0][0][1]));
-	displayString(0.2, 0.7f, to_string(payoff_matrix[0][1][0]) + "," + 
-			to_string(payoff_matrix[0][1][1]));
-	displayString(-0.1f, 0.6f, to_string(payoff_matrix[1][0][0]) + "," + 
-			to_string(payoff_matrix[1][0][1]));
-	displayString(0.2, 0.6f, to_string(payoff_matrix[1][1][0]) + "," + 
-			to_string(payoff_matrix[1][1][1]));
 	// Grid Box Colours
 	glBegin(GL_POLYGON);
 	glColor3f(1, 0.271f, 0);
@@ -280,8 +330,7 @@ void drawScreen() {
 	glVertex2f(0.4, 0.575);
 	glVertex2f(-0.25, 0.575);
 	glEnd();
-
-	solveMixedNash();
+	// TODO REMOVE END
 
         // Swap to buffer
         glFlush();
@@ -301,53 +350,3 @@ void displayString(float x, float y, string input) {
 	glRasterPos2f(x, y);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_18, input_cast);
 }
-
-// Solves the mixed nash equilibrium using equations
-// Equations can be used any arbitrary matrix that has a mixed nash equilibrium
-// Also displays text on the GUI screen of the mixed nash outcome and payoffs
-void solveMixedNash() {
-
-	// Variables
-	// Format: PlayerX_OptionX_PlayerY_OptionY gives the value in that cell to Player X
-	// eg. P1_O1_P2_O2 = Player 1 with Option 1 and Player 2 with Option 2, value for P1
-	float P1_O1_P2_O1 = payoff_matrix[0][0][0];
-	float P1_O1_P2_O2 = payoff_matrix[0][1][0];
-	float P1_O2_P2_O1 = payoff_matrix[1][0][0];
-	float P1_O2_P2_O2 = payoff_matrix[1][1][0];
-	float P2_O1_P1_O1 = payoff_matrix[0][0][1];
-	float P2_O1_P1_O2 = payoff_matrix[1][0][1];
-	float P2_O2_P1_O1 = payoff_matrix[0][1][1];
-	float P2_O2_P1_O2 = payoff_matrix[1][1][1];
-	float prob_P1;
-	float prob_P2;
-	float payoff_P1;
-	float payoff_P2;
-
-	// Solve Player 1 and Player 2 Probabilities
-	prob_P1 = (P2_O2_P1_O2 - P2_O1_P1_O2) / 
-		(P2_O1_P1_O1 - P2_O1_P1_O2 - P2_O2_P1_O1 + P2_O2_P1_O2);
-	prob_P2 = (P1_O2_P2_O2 - P1_O1_P2_O2) / 
-		(P1_O1_P2_O1 - P1_O1_P2_O2 - P1_O2_P2_O1 + P1_O2_P2_O2);
-
-	// Solve Player 1 and Player 2 Payoffs
-	payoff_P1 = (prob_P2 * P1_O1_P2_O1) + ((1.0f - prob_P2) * P1_O1_P2_O2);
-	payoff_P2 = (prob_P1 * P2_O1_P1_O1) + ((1.0f - prob_P1) * P2_O1_P1_O2);
-
-	// Mixed Nash P1 and P2 probabilities text
-	displayString(-0.5f, 0.5f, "The best Nash equilibrium in mixed strategies is:");
-	displayString(-0.8f, 0.4f, "Player 1 plays a mixed strategy of (Option 1, Option 2)"
-			" = (" + to_string(prob_P1) + ", " + to_string(1.0f-prob_P1) + ")");
-	displayString(-0.8f, 0.3f, "Player 2 plays a mixed strategy of (Option 1, Option 2)"
-			" = (" + to_string(prob_P2) + ", " + to_string(1.0f-prob_P2) + ")");
-
-	// Payout Text
-	displayString(-0.2f, 0.1f, "The payoff to each player is:");
-	displayString(-0.4f, 0, "Player 1 has an expected payoff = " + 
-			to_string(payoff_P1));
-	displayString(-0.4f, -0.1f, "Player 2 has an expected payoff = " + 
-			to_string(payoff_P2));
-	
-	// Quit Program Text
-	displayString(-0.5f, -0.5f, "Press *Esc* button or close the GUI to exit the program");
-}
-*/
