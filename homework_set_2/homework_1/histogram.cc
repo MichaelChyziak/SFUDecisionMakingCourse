@@ -13,7 +13,7 @@
 #include <string>
 #include <stdlib.h>
 #include <cstring>
-#include <math.h> // fabs()
+#include <math.h>
 
 // Link GLUT and OpenGL libraries
 #ifdef __APPLE__
@@ -26,11 +26,6 @@
 // Link freeglut (for stopping the program to end when GLUT window closes)
 #include <GL/freeglut.h>
 
-// TODO remove Homework description below
-/*
-Problem 1 (30) – By referring to any known public dataset (some examples are listed below but you are free to reference to any other known sources), write a program in Visual C++ that takes the dataset as an input file and computes the histogram of the data. Visualize the histogram data using OpenGL. Compute the mean and the variance of the distribution and overlay and visualize the expression for its univariate Gaussian distribution. Given two such histogram, compute the Bhattacharyya distance between them. Include the selected input dataset as a part of your submission. Include a short write-up discussing the results.
-*/
-
 using namespace std;
 
 // Function Declarations
@@ -41,11 +36,18 @@ void detectKeyboard(unsigned char key, int x, int y);
 void displayGUI(int argc, char **argv);
 void drawScreen();
 void displayString(float x, float y, string input);
+void calculateGaussian(float gaussian[52], float mean, float variance);
+void normalizeHistogram(unsigned int global_histogram[52], float global_normalized_histogram[52]);
 
 // Global Variables
 unsigned int global_histogram[52] = {0}; // Each array index is equal to a cards final value
+float global_normalized_histogram[52] = {0}; // Each array index is equal to a cards final value
+float  global_gaussian[52] = {0.0f}; // Each array index is equal to a cards final value
 float global_mean;
 float global_variance;
+
+// Global Constants
+const double PI = 3.141592653589793;
 
 int main(int argc, char **argv) {
 
@@ -78,16 +80,42 @@ int main(int argc, char **argv) {
 		return status;		
 	}
 
+	// Normalize histogram
+	// TODO: IMPORTANT:::::: DOES HISTOGRAM HAVE TO BE NORMALIZED???????????????????????????????????????????????????
+	normalizeHistogram(global_histogram, global_normalized_histogram);
+
 	// Evaluate mean
 	global_mean = calculateMean(global_histogram);
 
 	// Evaluate variance
 	global_variance = calculateVariance(global_histogram, global_mean);
 	
-	// TODO: Bhattacharyya with 2 histograms??? (where does 2nd come from?)
+	// evaluate univariate gaussian distribution
+	calculateGaussian(global_gaussian, global_mean, global_variance);
+
+	// TODO: Bhattacharyya with 2 histograms??? (where does 2nd come from?, is the 2nd the gaussian???? (probably))
 	
 	// Run GUI
 	displayGUI(argc, argv);
+}
+
+// TODO
+void normalizeHistogram(unsigned int global_histogram[52], float global_normalized_histogram[52]) {
+	
+	// Variables
+	unsigned int total_count = 0;
+	int histogram_index;
+
+	// Count number of poker hands
+	for (histogram_index = 0; histogram_index < 52; histogram_index++) {
+		total_count += global_histogram[histogram_index];
+	}
+
+	// Normalize histogram
+	for (histogram_index = 0; histogram_index < 52; histogram_index++) {
+		global_normalized_histogram[histogram_index] = (float)global_histogram[histogram_index] / (float)total_count;
+		printf("%f\n", global_normalized_histogram[histogram_index]);
+	}
 }
 
 // Creates a histogram where the value of each card is put into the respective array index
@@ -194,6 +222,22 @@ float calculateVariance(unsigned int histogram[52], float mean) {
 	return variance;
 }
 
+// Calculates the univariate gaussian distribution
+// mean and variance are passed in as parameters
+void calculateGaussian(float gaussian[52], float mean, float variance) {
+	
+	// Variables
+	int gaussian_index;
+	float temp_gaussian;
+
+	// Calculates the value of the gaussian at each point on the histogram
+	for (gaussian_index = 0; gaussian_index < 52; gaussian_index++) {
+		temp_gaussian = pow(gaussian_index - mean, 2) / (-2 * variance);
+		gaussian[gaussian_index] = 1.0f / sqrt(2 * PI * variance);
+		gaussian[gaussian_index] = gaussian[gaussian_index] * exp(temp_gaussian);
+	}
+}
+
 // Pressing escape closes the GUI
 void detectKeyboard(unsigned char key, int x, int y) {
 
@@ -206,7 +250,7 @@ void detectKeyboard(unsigned char key, int x, int y) {
 
 // Draws the histogram 
 // shows the univariate Gaussian distribution with the mean and variance already calculated
-// TODO Bayychetta? or w/e the spelling is with 2 histograms?????
+// TODO Bayychetta? or w/e the spelling is with 2 histograms (gaussian and OG histogram?)
 // Sets up OpenGL
 void displayGUI(int argc, char **argv) {
 
@@ -232,7 +276,7 @@ void displayGUI(int argc, char **argv) {
         glutMainLoop();
 }
 
-// Draws the histogram and the overlayed invariante Gaussian distribution
+// Draws the histogram and the overlayed univariate Gaussian distribution
 void drawScreen() {
 
 	// Variables
@@ -289,7 +333,6 @@ void drawScreen() {
 		glEnd();	
 	}
 	// Label X and Y coordinates
-	// TODO
 	displayString(-0.1f, -0.95f, "Poker Hand");
 	displayString(-0.95f, 0.1f, "F");
 	displayString(-0.95f, 0.075f, "r");
@@ -311,7 +354,6 @@ void drawScreen() {
 		}
 	}
 	// Draw bars
-	// TODO
 	for (histogram_index = 0; histogram_index < 52; histogram_index++) {
 		glBegin(GL_POLYGON);
 		glColor3f(1.0f, 0.271f, 0.0f);
@@ -323,9 +365,6 @@ void drawScreen() {
 	}
 	
 	// Draw univariate Gaussian distribution
-	// TODO
-	
-	// Display mean and variance
 	// TODO
 	
         // Swap to buffer
