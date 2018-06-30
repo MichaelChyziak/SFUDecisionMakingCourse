@@ -42,13 +42,15 @@ void displayGUI(int argc, char **argv);
 void drawScreen();
 void displayString(float x, float y, string input);
 
+// Global Variables
+unsigned int global_histogram[52] = {0}; // Each array index is equal to a cards final value
+float global_mean;
+float global_variance;
+
 int main(int argc, char **argv) {
 
 	// Variables
-	unsigned int histogram[52] = {0}; // Each array index is equal to a cards final value
 	int status;
-	float mean;
-	float variance;
 
 	// Program explanation/initialization
 	// TODO (explain how cards are stored in printf statements)
@@ -71,21 +73,16 @@ int main(int argc, char **argv) {
 
 	// Parses input from file and stores into histogram array
 	// If cannot read from file it ends the program
-	status = createHistogram(histogram);
+	status = createHistogram(global_histogram);
 	if (status == -1) {
 		return status;		
 	}
-	// TODO REMOVE: JUST DEBUG FOR NOW
-	int i;
-	for(i=0;i<52;i++){
-		printf("histogram[%d] = %d\n", i+1, histogram[i]);
-	}	
 
 	// Evaluate mean
-	mean = calculateMean(histogram);
+	global_mean = calculateMean(global_histogram);
 
 	// Evaluate variance
-	variance = calculateVariance(histogram, mean);
+	global_variance = calculateVariance(global_histogram, global_mean);
 	
 	// TODO: Bhattacharyya with 2 histograms??? (where does 2nd come from?)
 	
@@ -176,6 +173,7 @@ float calculateVariance(unsigned int histogram[52], float mean) {
 	int histogram_index;
 	int number_of_values = 0;
 	float summation_value = 0;
+	float temp_summation_value = 0;
 	float variance;
 
 	// Calculates the number of values in the histogram
@@ -185,12 +183,13 @@ float calculateVariance(unsigned int histogram[52], float mean) {
 
 	// Calculates the summation of (value - mean)^2
 	for (histogram_index = 0; histogram_index < 52; histogram_index++) {
-		summation_value = (((histogram_index + 1) - mean) * ((histogram_index + 1) - mean));
-		summation_value = summation_value * histogram[histogram_index];
+		temp_summation_value = (((histogram_index + 1) - mean) * ((histogram_index + 1) - mean));
+		temp_summation_value = temp_summation_value * histogram[histogram_index];
+		summation_value += temp_summation_value;
 	}
 
 	// Calculates the variance and returns the value
-	variance = 1 / (number_of_values - 1);
+	variance = 1.0 / (number_of_values - 1);
 	variance = variance * summation_value;
 	return variance;
 }
@@ -236,6 +235,14 @@ void displayGUI(int argc, char **argv) {
 // Draws the histogram and the overlayed invariante Gaussian distribution
 void drawScreen() {
 
+	// Variables
+	int histogram_max = 0;
+	int histogram_index;
+	int index_bar_x;
+	int index_bar_y;
+	float bar_x_delta = 1.6f/52.0f;
+	float bar_y_delta = 1.6f/10.0f;
+
         // Set Background Color to a light grey
         glClearColor(0.4, 0.4, 0.4, 1.0);
 
@@ -246,8 +253,74 @@ void drawScreen() {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
+	// Find max histogram value
+	for (histogram_index = 0; histogram_index < 52; histogram_index++) {
+		if (global_histogram[histogram_index] > histogram_max) {
+			histogram_max = global_histogram[histogram_index];
+		}
+	}
+
 	// Draw histogram
+	// Create Title and display mean and variance
+	displayString(-0.4f, 0.9f, "Poker Hands Histogram (Mean = " + to_string(global_mean) + ", Variance = " + to_string(global_variance) + ")");
+	// Draw X and Y coordinates
+	glBegin(GL_LINES);
+	glColor3f(0, 0, 0);
+	glVertex2f(-0.8f, -0.8f);
+	glVertex2f(0.8f, -0.8f);
+	glEnd();
+	glBegin(GL_LINES);
+	glColor3f(0, 0, 0);
+	glVertex2f(-0.8f, -0.8f);
+	glVertex2f(-0.8f, 0.8f);
+	glEnd();
+	for (index_bar_x = 0; index_bar_x < 53; index_bar_x++) {
+		glBegin(GL_LINES);
+		glColor3f(0, 0, 0);
+		glVertex2f(-0.8f + (index_bar_x * bar_x_delta), -0.8f);
+		glVertex2f(-0.8f + (index_bar_x * bar_x_delta), -0.85f);
+		glEnd();	
+	}
+	for (index_bar_y = 0; index_bar_y < 11; index_bar_y++) {
+		glBegin(GL_LINES);
+		glColor3f(0, 0, 0);
+		glVertex2f(-0.8f, -0.8f + (index_bar_y * bar_y_delta));
+		glVertex2f(-0.85f, -0.8f + (index_bar_y * bar_y_delta));
+		glEnd();	
+	}
+	// Label X and Y coordinates
 	// TODO
+	displayString(-0.1f, -0.95f, "Poker Hand");
+	displayString(-0.95f, 0.1f, "F");
+	displayString(-0.95f, 0.075f, "r");
+	displayString(-0.95f, 0.05f, "e");
+	displayString(-0.95f, 0.025f, "q");
+	displayString(-0.95f, 0.0f, "u");
+	displayString(-0.95f, -0.025f, "e");
+	displayString(-0.95f, -0.05f, "n");
+	displayString(-0.95f, -0.075f, "c");
+	displayString(-0.95f, -0.1f, "y");
+	for (index_bar_x = 0; index_bar_x < 53; index_bar_x++) {
+		if (index_bar_x % 4 == 0) {
+			displayString(-0.81f + (index_bar_x * bar_x_delta), -0.88f, to_string(index_bar_x));
+		}
+	}
+	for (index_bar_y = 0; index_bar_y < 11; index_bar_y++) {
+		if (index_bar_y % 2 == 0) {
+			displayString(-0.9f, -0.79f + (index_bar_y * bar_y_delta), to_string((int)(histogram_max / 10.0f * index_bar_y)));
+		}
+	}
+	// Draw bars
+	// TODO
+	for (histogram_index = 0; histogram_index < 52; histogram_index++) {
+		glBegin(GL_POLYGON);
+		glColor3f(1.0f, 0.271f, 0.0f);
+		glVertex2f(-0.8f + (histogram_index * bar_x_delta), -0.8);
+		glVertex2f(-0.8 + ((histogram_index+1) * bar_x_delta), -0.8);
+		glVertex2f(-0.8f + ((histogram_index+1) * bar_x_delta), -0.8 + 1.6f * ((float)global_histogram[histogram_index] / histogram_max));
+		glVertex2f(-0.8f + (histogram_index * bar_x_delta), -0.8 + 1.6f * ((float)global_histogram[histogram_index] / histogram_max));
+		glEnd();
+	}
 	
 	// Draw univariate Gaussian distribution
 	// TODO
@@ -255,83 +328,6 @@ void drawScreen() {
 	// Display mean and variance
 	// TODO
 	
-	// TODO REMOVE START
-	glBegin(GL_LINES);
-	glColor3f(0, 0, 0);
-	glVertex2f(-0.55f, 0.975f);
-	glVertex2f(0.4f, 0.975f);
-	glEnd();
-	glBegin(GL_LINES);
-	glColor3f(0, 0, 0);
-	glVertex2f(-0.55f, 0.875f);
-	glVertex2f(0.4f, 0.875f);
-	glEnd();
-	glBegin(GL_LINES);
-	glColor3f(0, 0, 0);
-	glVertex2f(-0.55f, 0.775);
-	glVertex2f(0.4f, 0.775f);
-	glEnd();
-	glBegin(GL_LINES);
-	glColor3f(0, 0, 0);
-	glVertex2f(-0.55f, 0.675f);
-	glVertex2f(0.4f, 0.675f);
-	glEnd();
-	glBegin(GL_LINES);
-	glColor3f(0, 0, 0);
-	glVertex2f(-0.55f, 0.575f);
-	glVertex2f(0.4f, 0.575f);
-	glEnd();
-	glBegin(GL_LINES);
-	glColor3f(0, 0, 0);
-	glVertex2f(-0.55f, 0.575f);
-	glVertex2f(-0.55f, 0.975f);
-	glEnd();
-	glBegin(GL_LINES);
-	glColor3f(0, 0, 0);
-	glVertex2f(-0.25f, 0.575f);
-	glVertex2f(-0.25f, 0.975f);
-	glEnd();
-	glBegin(GL_LINES);
-	glColor3f(0, 0, 0);
-	glVertex2f(0.1f, 0.575f);
-	glVertex2f(0.1f, 0.875f);
-	glEnd();
-	glBegin(GL_LINES);
-	glColor3f(0, 0, 0);
-	glVertex2f(0.4f, 0.575f);
-	glVertex2f(0.4f, 0.975f);
-	glEnd();
-	// Text/Values
-	displayString(-0.5f, 0.8f, "Player 1");
-	displayString(0, 0.9f, "Player 2");
-	displayString(-0.5f, 0.7f, "Option 1");
-	displayString(-0.5f, 0.6f, "Option 2");
-	displayString(-0.15f, 0.8f, "Option 1");
-	displayString(0.15f, 0.8f, "Option 2");
-	// Grid Box Colours
-	glBegin(GL_POLYGON);
-	glColor3f(1, 0.271f, 0);
-	glVertex2f(-0.55, 0.975);
-	glVertex2f(0.4, 0.975);
-	glVertex2f(0.4, 0.775);
-	glVertex2f(-0.55, 0.775);
-	glEnd();
-	glBegin(GL_POLYGON);
-	glColor3f(1, 0.271f, 0);
-	glVertex2f(-0.55, 0.775);
-	glVertex2f(-0.25, 0.775);
-	glVertex2f(-0.25, 0.575);
-	glVertex2f(-0.55, 0.575);
-	glEnd();
-	glBegin(GL_POLYGON);
-	glColor3f(1, 0.627f, 0.478f);
-	glVertex2f(-0.25, 0.775);
-	glVertex2f(0.4, 0.775);
-	glVertex2f(0.4, 0.575);
-	glVertex2f(-0.25, 0.575);
-	glEnd();
-	// TODO REMOVE END
-
         // Swap to buffer
         glFlush();
         glutSwapBuffers();
