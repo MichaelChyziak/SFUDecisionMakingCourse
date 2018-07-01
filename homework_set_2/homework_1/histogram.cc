@@ -1,9 +1,30 @@
 // Programmer: Michael Chyziak
 // Date: Wednesday June 14, 2018
 //
-// TODO: program description
-// TODO: required supplementary files
-// TODO: got data set from here: 
+// Description:
+// 	Will parse through a large data set and display the normalized histogram (orange bars) as well the univariate gaussian distribution (black lines)
+// 	The mean and variance will also be shown as well as the bhattacharyya distance
+// Card Description:
+// 	Cards stored as tuples (suit, value)
+// 	Suits are:
+// 	1 = hearts
+// 	2 = spades
+// 	3 = diamonds
+// 	4 = clubs
+// 	Values are:
+// 	1 = Ace
+// 	2-10: face value cards
+// 	11 = Jack
+// 	12 = Queen
+// 	13 = King
+// Detailed program description:
+// 	Going to parse all 100,000 hands which have 5 cards each
+// 	Going to show a histogram of 500,000 cards in a deck, drawn randomly 5 at a time
+// 	The value of a card will be its (value + (13 * (suit-1))
+// 	Thus the final value of cards will range from 1 to 52
+// Required supplementary file:
+// 	./poker-hand-testing.data
+// Got data set from here: 
 // 	http://archive.ics.uci.edu/ml/machine-learning-databases/poker/poker-hand-testing.data
 // 
 // g++ histogram.cc -lm -lglut -lGL -lGLU -o histogram
@@ -57,24 +78,7 @@ int main(int argc, char **argv) {
 	int status;
 
 	// Program explanation/initialization
-	// TODO (explain how cards are stored in printf statements)
-	// Cards stored as tuples (suit, value)
-	// Suits are:
-	// 1 = hearts
-	// 2 = spades
-	// 3 = diamonds
-	// 4 = clubs
-	// Values are:
-	// 1 = Ace
-	// 2-10: face value cards
-	// 11 = Jack
-	// 12 = Queen
-	// 13 = King
-	// Going to parse all 100,000 hands which have 5 cards each
-	// Going to show a histogram of 500,000 cards in a deck, drawn randomly 5 at a time
-	// The value of a card will be its (value + (13 * (suit-1))
-	// Thus the final value of cards will range from 1 to 52
-
+	
 	// Parses input from file and stores into histogram array
 	// If cannot read from file it ends the program
 	status = createHistogram(global_histogram);
@@ -102,19 +106,22 @@ int main(int argc, char **argv) {
 }
 
 // Calculate the Bhattacharyya distance between two normalized histograms
+// Equation online seems to differ (mostly with position of last negative sign)
+// This is because using the in class one gives us a complex number, but we will just want the real part
 float calculateBhattacharyya(float global_normalized_histogram[52], float global_gaussian[52]) {
 	
 	// Variables
 	int index;
-	int bhattacharyya_d = 0;
+	float bhattacharyya_d = 0;
 
 	// Calculate d
 	for (index = 0; index < 52; index++) {
 		bhattacharyya_d += sqrt(global_normalized_histogram[index] * global_gaussian[index]);
 	}
-
+	
 	// Calculate and return D
-	return log(-1 * bhattacharyya_d);
+	// Taking only real part, move -1 inside log for full complex number
+	return -1 * log(bhattacharyya_d);
 }
 
 // Normalizes the histogram data and stores in global normalized histogram variable
