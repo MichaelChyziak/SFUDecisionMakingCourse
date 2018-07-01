@@ -37,7 +37,8 @@ void displayGUI(int argc, char **argv);
 void drawScreen();
 void displayString(float x, float y, string input);
 void calculateGaussian(float gaussian[52], float mean, float variance);
-void normalizeHistogram(unsigned int global_histogram[52], float global_normalized_histogram[52]);
+void normalizeHistogram(unsigned int histogram[52], float global_normalized_histogram[52]);
+float calculateBhattacharyya(float global_normalized_histogram[52], float global_gaussian[52]);
 
 // Global Variables
 unsigned int global_histogram[52] = {0}; // Each array index is equal to a cards final value
@@ -45,6 +46,7 @@ float global_normalized_histogram[52] = {0}; // Each array index is equal to a c
 float  global_gaussian[52] = {0.0f}; // Each array index is equal to a cards final value
 float global_mean;
 float global_variance;
+float bhattacharyya_distance;
 
 // Global Constants
 const double PI = 3.141592653589793;
@@ -81,7 +83,6 @@ int main(int argc, char **argv) {
 	}
 
 	// Normalize histogram
-	// TODO: IMPORTANT:::::: DOES HISTOGRAM HAVE TO BE NORMALIZED???????????????????????????????????????????????????
 	normalizeHistogram(global_histogram, global_normalized_histogram);
 
 	// Evaluate mean
@@ -93,14 +94,31 @@ int main(int argc, char **argv) {
 	// evaluate univariate gaussian distribution
 	calculateGaussian(global_gaussian, global_mean, global_variance);
 
-	// TODO: Bhattacharyya with 2 histograms??? (where does 2nd come from?, is the 2nd the gaussian???? (probably))
+	// Bhattacharyya distance
+	bhattacharyya_distance = calculateBhattacharyya(global_normalized_histogram, global_gaussian);
 	
 	// Run GUI
 	displayGUI(argc, argv);
 }
 
-// TODO
-void normalizeHistogram(unsigned int global_histogram[52], float global_normalized_histogram[52]) {
+// Calculate the Bhattacharyya distance between two normalized histograms
+float calculateBhattacharyya(float global_normalized_histogram[52], float global_gaussian[52]) {
+	
+	// Variables
+	int index;
+	int bhattacharyya_d = 0;
+
+	// Calculate d
+	for (index = 0; index < 52; index++) {
+		bhattacharyya_d += sqrt(global_normalized_histogram[index] * global_gaussian[index]);
+	}
+
+	// Calculate and return D
+	return log(-1 * bhattacharyya_d);
+}
+
+// Normalizes the histogram data and stores in global normalized histogram variable
+void normalizeHistogram(unsigned int histogram[52], float global_normalized_histogram[52]) {
 	
 	// Variables
 	unsigned int total_count = 0;
@@ -108,13 +126,12 @@ void normalizeHistogram(unsigned int global_histogram[52], float global_normaliz
 
 	// Count number of poker hands
 	for (histogram_index = 0; histogram_index < 52; histogram_index++) {
-		total_count += global_histogram[histogram_index];
+		total_count += histogram[histogram_index];
 	}
 
 	// Normalize histogram
 	for (histogram_index = 0; histogram_index < 52; histogram_index++) {
-		global_normalized_histogram[histogram_index] = (float)global_histogram[histogram_index] / (float)total_count;
-		printf("%f\n", global_normalized_histogram[histogram_index]);
+		global_normalized_histogram[histogram_index] = (float)histogram[histogram_index] / (float)total_count;
 	}
 }
 
@@ -250,7 +267,7 @@ void detectKeyboard(unsigned char key, int x, int y) {
 
 // Draws the histogram 
 // shows the univariate Gaussian distribution with the mean and variance already calculated
-// TODO Bayychetta? or w/e the spelling is with 2 histograms (gaussian and OG histogram?)
+// Also shows the Bhattacharyya distance between the two normalized histograms
 // Sets up OpenGL
 void displayGUI(int argc, char **argv) {
 
@@ -266,7 +283,7 @@ void displayGUI(int argc, char **argv) {
         glutCreateWindow("ENSC482 Michael Chyziak - Homework 1");
 
         // Update depth buffer if test passes
-        glEnable(GL_DEPTH_TEST);
+        //glEnable(GL_DEPTH_TEST); // Means first drawn = background, latest drawn = foreground
 
         // Callback functions
         glutDisplayFunc(drawScreen);
@@ -280,8 +297,8 @@ void displayGUI(int argc, char **argv) {
 void drawScreen() {
 
 	// Variables
-	int histogram_max = 0;
 	int histogram_index;
+	float graph_max = 0;
 	int index_bar_x;
 	int index_bar_y;
 	float bar_x_delta = 1.6f/52.0f;
@@ -297,16 +314,20 @@ void drawScreen() {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
-	// Find max histogram value
+	// Find max value of graph (original and gaussian histograms)
 	for (histogram_index = 0; histogram_index < 52; histogram_index++) {
-		if (global_histogram[histogram_index] > histogram_max) {
-			histogram_max = global_histogram[histogram_index];
+		if (global_normalized_histogram[histogram_index] > graph_max) {
+			graph_max = global_normalized_histogram[histogram_index];
+		}
+		if (global_gaussian[histogram_index] > graph_max) {
+			graph_max = global_gaussian[histogram_index];
 		}
 	}
 
 	// Draw histogram
 	// Create Title and display mean and variance
-	displayString(-0.4f, 0.9f, "Poker Hands Histogram (Mean = " + to_string(global_mean) + ", Variance = " + to_string(global_variance) + ")");
+	displayString(-0.6f, 0.9f, "Poker Hands Histogram (Mean = " + to_string(global_mean) + ", Variance = " + to_string(global_variance) + 
+			", Bhattacharyya distance = " + to_string(bhattacharyya_distance) + ")");
 	// Draw X and Y coordinates
 	glBegin(GL_LINES);
 	glColor3f(0, 0, 0);
@@ -334,15 +355,17 @@ void drawScreen() {
 	}
 	// Label X and Y coordinates
 	displayString(-0.1f, -0.95f, "Poker Hand");
-	displayString(-0.95f, 0.1f, "F");
-	displayString(-0.95f, 0.075f, "r");
-	displayString(-0.95f, 0.05f, "e");
-	displayString(-0.95f, 0.025f, "q");
-	displayString(-0.95f, 0.0f, "u");
-	displayString(-0.95f, -0.025f, "e");
-	displayString(-0.95f, -0.05f, "n");
-	displayString(-0.95f, -0.075f, "c");
-	displayString(-0.95f, -0.1f, "y");
+	displayString(-0.99f, 0.2f, "P");
+	displayString(-0.99f, 0.16f, "r");
+	displayString(-0.99f, 0.12f, "o");
+	displayString(-0.99f, 0.08f, "b");
+	displayString(-0.99f, 0.04f, "a");
+	displayString(-0.99f, 0.0f, "b");
+	displayString(-0.99f, -0.04f, "i");
+	displayString(-0.99f, -0.08f, "l");
+	displayString(-0.99f, -0.12f, "i");
+	displayString(-0.99f, -0.16f, "t");
+	displayString(-0.99f, -0.20f, "y");
 	for (index_bar_x = 0; index_bar_x < 53; index_bar_x++) {
 		if (index_bar_x % 4 == 0) {
 			displayString(-0.81f + (index_bar_x * bar_x_delta), -0.88f, to_string(index_bar_x));
@@ -350,22 +373,29 @@ void drawScreen() {
 	}
 	for (index_bar_y = 0; index_bar_y < 11; index_bar_y++) {
 		if (index_bar_y % 2 == 0) {
-			displayString(-0.9f, -0.79f + (index_bar_y * bar_y_delta), to_string((int)(histogram_max / 10.0f * index_bar_y)));
+			displayString(-0.95f, -0.79f + (index_bar_y * bar_y_delta), to_string((graph_max / 10.0f * index_bar_y)));
 		}
 	}
-	// Draw bars
+	// Draw bars for data histogram
 	for (histogram_index = 0; histogram_index < 52; histogram_index++) {
 		glBegin(GL_POLYGON);
 		glColor3f(1.0f, 0.271f, 0.0f);
-		glVertex2f(-0.8f + (histogram_index * bar_x_delta), -0.8);
-		glVertex2f(-0.8 + ((histogram_index+1) * bar_x_delta), -0.8);
-		glVertex2f(-0.8f + ((histogram_index+1) * bar_x_delta), -0.8 + 1.6f * ((float)global_histogram[histogram_index] / histogram_max));
-		glVertex2f(-0.8f + (histogram_index * bar_x_delta), -0.8 + 1.6f * ((float)global_histogram[histogram_index] / histogram_max));
+		glVertex2f(-0.795f + (histogram_index * bar_x_delta), -0.8);
+		glVertex2f(-0.805f + ((histogram_index+1) * bar_x_delta), -0.8);
+		glVertex2f(-0.805f + ((histogram_index+1) * bar_x_delta), -0.8 + (1.6f * global_normalized_histogram[histogram_index] / graph_max));
+		glVertex2f(-0.795f + (histogram_index * bar_x_delta), -0.8 + (1.6f * global_normalized_histogram[histogram_index] / graph_max));
 		glEnd();
 	}
 	
 	// Draw univariate Gaussian distribution
-	// TODO
+	for (histogram_index = 0; histogram_index < 52; histogram_index++) {
+		glBegin(GL_LINES);
+		glColor3f(0, 0, 0);
+		glVertex2f(-0.8f + ((histogram_index+1) * bar_x_delta), -0.8 + (1.6f * global_gaussian[histogram_index] / graph_max));
+		glVertex2f(-0.8f + (histogram_index * bar_x_delta), -0.8 + (1.6f * global_gaussian[histogram_index] / graph_max));
+		glEnd();	
+		glEnd();
+	}
 	
         // Swap to buffer
         glFlush();
