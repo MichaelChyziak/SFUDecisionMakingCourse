@@ -172,6 +172,7 @@ void drawScreen() {
 	float relative_scatterplot_x_value;
 	float relative_scatterplot_y_value;
 	string display_string;
+	int axis_index;
 
         // Set Background Color to a light grey
         glClearColor(0.4, 0.4, 0.4, 1.0);
@@ -226,7 +227,38 @@ void drawScreen() {
 					matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)));
 			glEnd();
 			// Axis bars and values
-			// TODO
+			// Don't add to main diagonal
+			if (matrix_row_index == matrix_col_index) {
+				// Don't add axis bars and values
+			}
+			else {
+				for (axis_index = 0; axis_index < 6; axis_index++) {
+					// Y-axis
+					glBegin(GL_LINES);
+					glColor3f(0, 0, 0);
+					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)),
+							matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - (axis_index * matrix_col_delta / 5));
+					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) - 0.02f,
+							matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - (axis_index * matrix_col_delta / 5));
+					glEnd();
+					display_string = to_string(axis_index / 5.0f * max_wine_variable_value[matrix_col_index]);
+					display_string.resize(4);
+					displayString(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) - 0.08f,
+							matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - (axis_index * matrix_col_delta / 5) - 0.01f, display_string);
+					// X-axis
+					glBegin(GL_LINES);
+					glColor3f(0, 0, 0);
+					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + (axis_index * matrix_row_delta / 5),
+							(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)));
+					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + (axis_index * matrix_row_delta / 5),
+							(matrix_col_start - matrix_col_delta)- (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - 0.02f);
+					glEnd();
+					display_string = to_string(axis_index / 5.0f * max_wine_variable_value[matrix_row_index]);
+					display_string.resize(4);
+					displayString(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + (axis_index * matrix_row_delta / 5) - 0.03f,
+							(matrix_col_start - matrix_col_delta)- (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - 0.05f, display_string);
+				}
+			}
 		}
 	}
 
