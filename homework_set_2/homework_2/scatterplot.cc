@@ -29,15 +29,24 @@
 
 using namespace std;
 
+// Global constants
+const int num_wine_data_points = 178; 
+
 // Function Declarations
-int parseWineData(float wine_data[178][3]);
+int parseWineData(float wine_data[num_wine_data_points][3]);
 void detectKeyboard(unsigned char key, int x, int y);
 void displayGUI(int argc, char **argv);
 void drawScreen();
 void displayString(float x, float y, string input);
+void computeCorrelationCoefficient(float wine_data[num_wine_data_points][3], float wine_scatterplot_correlation_coefficient[3][3], float wine_mean[3], float wine_variance[3]);
+void calculateMean(float wine_data[num_wine_data_points][3], float wine_mean[3]);
+void calculateVariance(float wine_data[num_wine_data_points][3], float wine_mean[3], float wine_variance[3]);
 
 // Global Variables
-float wine_data[178][3]; // Know that there is exactly 178 data points with 3 variables (alcohol, colour intensity, and hue)
+float wine_data[num_wine_data_points][3]; // Know that there is exactly 178 data points with 3 variables (alcohol, colour intensity, and hue)
+float wine_mean[3]; // The mean for each wine variable (alcohol, colour intensity, and hue)
+float wine_variance[3]; // The variance for each wine variable (alcohol, colour intensity, and hue)
+float wine_scatterplot_correlation_coefficient[3][3]; // Correlation coefficient for each scatterplot in the 3x3 matix of scatterplots shown
 
 int main(int argc, char **argv) {
 
@@ -51,17 +60,104 @@ int main(int argc, char **argv) {
 		return status;		
 	}
 	
-	// Calculate and display (printf) 3x3 correlation coefficiants and final correclation coefficiant
-	// TODO
+	// Calculate the mean and variance of all 3 wine variables
+	calculateMean(wine_data, wine_mean);
+	calculateVariance(wine_data, wine_mean, wine_variance);
+
+	// Calculates and displays (through printf) the correlation coefficiants for each off diagonal scatterplot and associated 3x3 covariance matrix
+	computeCorrelationCoefficient(wine_data, wine_scatterplot_correlation_coefficient, wine_mean, wine_variance);
 
 	// Run GUI
 	displayGUI(argc, argv);
 }
 
+
+
+// Calculates the mean value for each wine data variable
+void calculateMean(float wine_data[num_wine_data_points][3], float wine_mean[3]) {
+        
+	// Variables
+	int wine_index;
+	int wine_variable_index;
+	int number_of_values;
+	float sum_value;
+
+	// Calculates mean for all 3 wine variables 
+	for (wine_variable_index = 0; wine_variable_index < 3; wine_variable_index++) {
+		// Calculates the sum of all of the values and the number of values taken
+		sum_value = 0;
+		number_of_values = 0;
+		for (wine_index = 0; wine_index < num_wine_data_points; wine_index++) {
+			sum_value += wine_data[wine_index][wine_variable_index];
+			number_of_values++;
+		}
+		// Calculates the mean and stores it
+		wine_mean[wine_variable_index] =  sum_value / (float) number_of_values;
+	}
+}
+
+// Calculates the variance for each wine data variable
+void calculateVariance(float wine_data[num_wine_data_points][3], float wine_mean[3], float wine_variance[3]) {
+
+	// Variables
+	int wine_index;
+	int wine_variable_index;
+	int number_of_values;
+	float sum_value;
+	float temp_sum_value;
+
+	// Calculates the number of values in the histogram
+	number_of_values = num_wine_data_points; // Already known this
+
+	// Calculates the variance for all 3 wine variables
+	for (wine_variable_index = 0; wine_variable_index < 3; wine_variable_index++) {
+		sum_value = 0;
+		temp_sum_value = 0;
+		// Calculates the summation of (value - mean)^2
+		for (wine_index = 0; wine_index < num_wine_data_points; wine_index++) {
+			temp_sum_value = pow(wine_data[wine_index][wine_variable_index] - wine_mean[wine_variable_index], 2);
+			sum_value += temp_sum_value;
+		}
+
+		// Calculates the variance and returns the value
+		wine_variance[wine_variable_index] = (1.0f / (number_of_values - 1)) * sum_value;
+	}
+}
+
+
+
+
+
+// Computes the correlation coefficient for each off diagonal scatterplot
+// TODO Also does ...
+void computeCorrelationCoefficient(float wine_data[num_wine_data_points][3], float wine_scatterplot_correlation_coefficient[3][3], float wine_mean[3], float wine_variance[3]) {
+
+	// Variables
+	int wine_row_index;
+	int wine_col_index;
+	int wine_index;
+	float temp_sum_value;
+	int number_of_values = num_wine_data_points; // Already known this
+
+	// Compute the correlation coefficient for each off diagonal scatterplot
+	for (wine_row_index = 0; wine_row_index < 3; wine_row_index++) {
+		for (wine_col_index = 0; wine_col_index < 3; wine_col_index++) {
+			temp_sum_value = 0;
+			for (wine_index = 0; wine_index < num_wine_data_points; wine_index++) {
+				temp_sum_value += ((wine_data[wine_index][wine_row_index] - wine_mean[wine_row_index]) / sqrt(wine_variance[wine_row_index]) *
+						((wine_data[wine_index][wine_col_index] - wine_mean[wine_col_index]) / sqrt(wine_variance[wine_col_index])));
+			}
+			wine_scatterplot_correlation_coefficient[wine_row_index][wine_col_index] = (1.0f / (number_of_values - 1)) * temp_sum_value;
+		}
+	}
+	
+	// TODO
+}
+
 // Parses file to get the appropriate wine data on the 3 relevant variables in an array
 // Return -1 = error
 // Return 0 = success
-int parseWineData(float wine_data[178][3]) {
+int parseWineData(float wine_data[num_wine_data_points][3]) {
 	
 	// Variables
 	FILE* file_pointer;
@@ -185,7 +281,7 @@ void drawScreen() {
         glLoadIdentity();
 
 	// Determine maximum and minimum variable values (alcohol, colour intensity, and hue)
-	for (wine_index = 0; wine_index < 178; wine_index++) {
+	for (wine_index = 0; wine_index < num_wine_data_points; wine_index++) {
 		for (wine_variable_index = 0; wine_variable_index < 3; wine_variable_index++) {
 			if (wine_data[wine_index][wine_variable_index] > max_wine_variable_value[wine_variable_index]) {
 				max_wine_variable_value[wine_variable_index] = wine_data[wine_index][wine_variable_index];
@@ -226,10 +322,10 @@ void drawScreen() {
 			glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)), 
 					matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)));
 			glEnd();
-			// Axis bars and values
+			// Axis bars, values, and pearson correlation coefficient (r)
 			// Don't add to main diagonal
 			if (matrix_row_index == matrix_col_index) {
-				// Don't add axis bars and values
+				// Don't add axis bars, values, and r
 			}
 			else {
 				for (axis_index = 0; axis_index < 6; axis_index++) {
@@ -237,14 +333,15 @@ void drawScreen() {
 					glBegin(GL_LINES);
 					glColor3f(0, 0, 0);
 					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)),
-							matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - (axis_index * matrix_col_delta / 5));
+							(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + (axis_index * matrix_col_delta / 5));
 					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) - 0.02f,
-							matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - (axis_index * matrix_col_delta / 5));
+							(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + (axis_index * matrix_col_delta / 5));
 					glEnd();
 					display_string = to_string(axis_index / 5.0f * max_wine_variable_value[matrix_col_index]);
 					display_string.resize(4);
 					displayString(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) - 0.08f,
-							matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - (axis_index * matrix_col_delta / 5) - 0.01f, display_string);
+							(matrix_col_start - matrix_col_delta)- (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + (axis_index * matrix_col_delta / 5) - 0.01f, 
+							display_string);
 					// X-axis
 					glBegin(GL_LINES);
 					glColor3f(0, 0, 0);
@@ -258,6 +355,11 @@ void drawScreen() {
 					displayString(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + (axis_index * matrix_row_delta / 5) - 0.03f,
 							(matrix_col_start - matrix_col_delta)- (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - 0.05f, display_string);
 				}
+				// Pearson correlation coefficient (r)
+				display_string = "r=" + to_string(wine_scatterplot_correlation_coefficient[matrix_row_index][matrix_col_index]);
+				displayString(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + 0.18f,
+						matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + 0.005f, 
+						display_string);
 			}
 		}
 	}
@@ -267,7 +369,7 @@ void drawScreen() {
 	for (matrix_row_index = 0; matrix_row_index < 3; matrix_row_index++) {
 		for (matrix_col_index = 0; matrix_col_index < 3; matrix_col_index++) {
 			if (matrix_row_index != matrix_col_index) {
-				for (wine_index = 0; wine_index < 178; wine_index++) {
+				for (wine_index = 0; wine_index < num_wine_data_points; wine_index++) {
 					// Find the points relative value in the scatter plot (between 0 and x and y delta's)
 					relative_scatterplot_x_value = wine_data[wine_index][matrix_row_index] / max_wine_variable_value[matrix_row_index] * matrix_row_delta;
 					relative_scatterplot_y_value = wine_data[wine_index][matrix_col_index] / max_wine_variable_value[matrix_col_index] * matrix_col_delta;
@@ -275,16 +377,16 @@ void drawScreen() {
 					glBegin(GL_LINES);
 					glColor3f(0, 0, 1);
 					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + relative_scatterplot_x_value - 0.01f, 
-							matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - relative_scatterplot_y_value + 0.01f) ;
+							(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + relative_scatterplot_y_value + 0.01f) ;
 					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + relative_scatterplot_x_value + 0.01f, 
-							matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - relative_scatterplot_y_value - 0.01f) ;
+							(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + relative_scatterplot_y_value - 0.01f) ;
 					glEnd();
 					glBegin(GL_LINES);
 					glColor3f(0, 0, 1);
 					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + relative_scatterplot_x_value - 0.01f, 
-							matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - relative_scatterplot_y_value - 0.01f) ;
+							(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + relative_scatterplot_y_value - 0.01f) ;
 					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + relative_scatterplot_x_value + 0.01f, 
-							matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - relative_scatterplot_y_value + 0.01f) ;
+							(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + relative_scatterplot_y_value + 0.01f) ;
 					glEnd();
 				}	
 			}
