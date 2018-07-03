@@ -41,12 +41,14 @@ void displayString(float x, float y, string input);
 void computeCorrelationCoefficient(float wine_data[num_wine_data_points][3], float wine_scatterplot_correlation_coefficient[3][3], float wine_mean[3], float wine_variance[3]);
 void calculateMean(float wine_data[num_wine_data_points][3], float wine_mean[3]);
 void calculateVariance(float wine_data[num_wine_data_points][3], float wine_mean[3], float wine_variance[3]);
+void calculateCovariance(float wine_data[num_wine_data_points][3], float wine_covariance[3][3], float wine_mean[3], float wine_variance[3]);
 
 // Global Variables
 float wine_data[num_wine_data_points][3]; // Know that there is exactly 178 data points with 3 variables (alcohol, colour intensity, and hue)
 float wine_mean[3]; // The mean for each wine variable (alcohol, colour intensity, and hue)
 float wine_variance[3]; // The variance for each wine variable (alcohol, colour intensity, and hue)
 float wine_scatterplot_correlation_coefficient[3][3]; // Correlation coefficient for each scatterplot in the 3x3 matix of scatterplots shown
+float wine_covariance[3][3]; // covariance for each scatterplot in the 3x3 matrix
 
 int main(int argc, char **argv) {
 
@@ -64,8 +66,11 @@ int main(int argc, char **argv) {
 	calculateMean(wine_data, wine_mean);
 	calculateVariance(wine_data, wine_mean, wine_variance);
 
-	// Calculates and displays (through printf) the correlation coefficiants for each off diagonal scatterplot and associated 3x3 covariance matrix
+	// Calculates correlation coefficiants for each off diagonal scatterplot
 	computeCorrelationCoefficient(wine_data, wine_scatterplot_correlation_coefficient, wine_mean, wine_variance);
+
+	// Calculates the associated 3x3 covariance matrix
+	calculateCovariance(wine_data, wine_covariance, wine_mean, wine_variance);
 
 	// Run GUI
 	displayGUI(argc, argv);
@@ -119,17 +124,45 @@ void calculateVariance(float wine_data[num_wine_data_points][3], float wine_mean
 			sum_value += temp_sum_value;
 		}
 
-		// Calculates the variance and returns the value
+		// Calculates the variance
 		wine_variance[wine_variable_index] = (1.0f / (number_of_values - 1)) * sum_value;
 	}
 }
 
+// Calculates the 3x3 covariance matrix of the wine variables
+void calculateCovariance(float wine_data[num_wine_data_points][3], float wine_covariance[3][3], float wine_mean[3], float wine_variance[3]) {
 
+	// Variables
+	int wine_row_index;
+	int wine_col_index;
+	int wine_index;
+	float sum_value;
+	float temp_sum_value;
+	int number_of_values = num_wine_data_points;
 
+	// Compute the correlation coefficiuent of the 3x3 covariance matrix
+	for (wine_row_index = 0; wine_row_index < 3; wine_row_index++) {
+		for (wine_col_index = 0; wine_col_index < 3; wine_col_index++) {
+			sum_value = 0;
+			temp_sum_value;
+			// covariance of X,X is just the variance
+			if (wine_row_index == wine_col_index) {
+				wine_covariance[wine_row_index][wine_col_index] = wine_variance[wine_row_index];
+			}
+			else {
+				for (wine_index = 0; wine_index < num_wine_data_points; wine_index++) {
+					temp_sum_value = (wine_data[wine_index][wine_row_index] - wine_mean[wine_row_index]) * (wine_data[wine_index][wine_col_index] - wine_mean[wine_col_index]);
+					sum_value += temp_sum_value;
+				}
 
+				// Calculates the covariance
+				wine_covariance[wine_row_index][wine_col_index] = (1.0f / (number_of_values - 1)) * sum_value;
+			}
+		}
+	}
+}
 
 // Computes the correlation coefficient for each off diagonal scatterplot
-// TODO Also does ...
 void computeCorrelationCoefficient(float wine_data[num_wine_data_points][3], float wine_scatterplot_correlation_coefficient[3][3], float wine_mean[3], float wine_variance[3]) {
 
 	// Variables
@@ -150,8 +183,6 @@ void computeCorrelationCoefficient(float wine_data[num_wine_data_points][3], flo
 			wine_scatterplot_correlation_coefficient[wine_row_index][wine_col_index] = (1.0f / (number_of_values - 1)) * temp_sum_value;
 		}
 	}
-	
-	// TODO
 }
 
 // Parses file to get the appropriate wine data on the 3 relevant variables in an array
@@ -322,10 +353,15 @@ void drawScreen() {
 			glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)), 
 					matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)));
 			glEnd();
-			// Axis bars, values, and pearson correlation coefficient (r)
+			// Axis bars, values, pearson correlation coefficient (r), and covariance (cov)
 			// Don't add to main diagonal
 			if (matrix_row_index == matrix_col_index) {
-				// Don't add axis bars, values, and r
+				// Display only Pearson correlation coefficient (r) and covariance (cov)
+				display_string = "r=" + to_string(wine_scatterplot_correlation_coefficient[matrix_row_index][matrix_col_index]) + ",cov=" + 
+							to_string(wine_covariance[matrix_row_index][matrix_col_index]);
+				displayString(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + 0.08f,
+						matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + 0.005f, 
+						display_string);
 			}
 			else {
 				for (axis_index = 0; axis_index < 6; axis_index++) {
@@ -355,9 +391,10 @@ void drawScreen() {
 					displayString(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + (axis_index * matrix_row_delta / 5) - 0.03f,
 							(matrix_col_start - matrix_col_delta)- (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - 0.05f, display_string);
 				}
-				// Pearson correlation coefficient (r)
-				display_string = "r=" + to_string(wine_scatterplot_correlation_coefficient[matrix_row_index][matrix_col_index]);
-				displayString(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + 0.18f,
+				// Pearson correlation coefficient (r) and covariance (cov)
+				display_string = "r=" + to_string(wine_scatterplot_correlation_coefficient[matrix_row_index][matrix_col_index]) + ",cov=" + 
+							to_string(wine_covariance[matrix_row_index][matrix_col_index]);
+				displayString(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + 0.08f,
 						matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + 0.005f, 
 						display_string);
 			}
