@@ -76,8 +76,6 @@ int main(int argc, char **argv) {
 	displayGUI(argc, argv);
 }
 
-
-
 // Calculates the mean value for each wine data variable
 void calculateMean(float wine_data[num_wine_data_points][3], float wine_mean[3]) {
         
@@ -151,7 +149,7 @@ void calculateCovariance(float wine_data[num_wine_data_points][3], float wine_co
 			}
 			else {
 				for (wine_index = 0; wine_index < num_wine_data_points; wine_index++) {
-					temp_sum_value = (wine_data[wine_index][wine_row_index] - wine_mean[wine_row_index]) * (wine_data[wine_index][wine_col_index] - wine_mean[wine_col_index]);
+					temp_sum_value = (wine_data[wine_index][wine_col_index] - wine_mean[wine_col_index]) * (wine_data[wine_index][wine_row_index] - wine_mean[wine_row_index]);
 					sum_value += temp_sum_value;
 				}
 
@@ -177,8 +175,8 @@ void computeCorrelationCoefficient(float wine_data[num_wine_data_points][3], flo
 		for (wine_col_index = 0; wine_col_index < 3; wine_col_index++) {
 			temp_sum_value = 0;
 			for (wine_index = 0; wine_index < num_wine_data_points; wine_index++) {
-				temp_sum_value += ((wine_data[wine_index][wine_row_index] - wine_mean[wine_row_index]) / sqrt(wine_variance[wine_row_index]) *
-						((wine_data[wine_index][wine_col_index] - wine_mean[wine_col_index]) / sqrt(wine_variance[wine_col_index])));
+				temp_sum_value += ((wine_data[wine_index][wine_col_index] - wine_mean[wine_col_index]) / sqrt(wine_variance[wine_col_index]) *
+						((wine_data[wine_index][wine_row_index] - wine_mean[wine_row_index]) / sqrt(wine_variance[wine_row_index])));
 			}
 			wine_scatterplot_correlation_coefficient[wine_row_index][wine_col_index] = (1.0f / (number_of_values - 1)) * temp_sum_value;
 		}
@@ -271,7 +269,7 @@ void displayGUI(int argc, char **argv) {
         glutCreateWindow("ENSC482 Michael Chyziak - Homework 2");
 
         // Update depth buffer if test passes
-        glEnable(GL_DEPTH_TEST);
+        // glEnable(GL_DEPTH_TEST);
 
         // Callback functions
         glutDisplayFunc(drawScreen);
@@ -287,8 +285,8 @@ void drawScreen() {
 	// Variables
 	int matrix_row_index;
 	int matrix_col_index;
-	float matrix_row_start = -0.85;
-	float matrix_col_start = 0.85;
+	float matrix_row_start = 0.85;
+	float matrix_col_start = -0.85;
 	float matrix_row_delta = 0.5;
 	float matrix_col_delta = 0.5;
 	float matrix_row_buffer = 0.1;
@@ -300,6 +298,10 @@ void drawScreen() {
 	float relative_scatterplot_y_value;
 	string display_string;
 	int axis_index;
+	float least_squares_y_start;
+	float least_squares_y_end;
+	float least_squares_x_start;
+	float least_squares_x_end;
 
         // Set Background Color to a light grey
         glClearColor(0.4, 0.4, 0.4, 1.0);
@@ -327,31 +329,31 @@ void drawScreen() {
 			// 3x3 matrix
 			glBegin(GL_LINES);
 			glColor3f(0, 0, 0);
-			glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)), 
-					matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)));
-			glVertex2f((matrix_row_start + matrix_row_delta) + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)), 
-					matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)));
+			glVertex2f(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)), 
+					matrix_row_start - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)));
+			glVertex2f((matrix_col_start + matrix_col_delta) + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)), 
+					matrix_row_start - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)));
 			glEnd();
 			glBegin(GL_LINES);
 			glColor3f(0, 0, 0);
-			glVertex2f((matrix_row_start + matrix_row_delta) + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)), 
-					matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)));
-			glVertex2f((matrix_row_start + matrix_row_delta) + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)), 
-					(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)));
+			glVertex2f((matrix_col_start + matrix_col_delta) + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)), 
+					matrix_row_start - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)));
+			glVertex2f((matrix_col_start + matrix_col_delta) + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)), 
+					(matrix_row_start - matrix_row_delta) - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)));
 			glEnd();
 			glBegin(GL_LINES);
 			glColor3f(0, 0, 0);
-			glVertex2f((matrix_row_start + matrix_row_delta) + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)), 
-					(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)));
-			glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)), 
-					(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)));
+			glVertex2f((matrix_col_start + matrix_col_delta) + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)), 
+					(matrix_row_start - matrix_row_delta) - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)));
+			glVertex2f(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)), 
+					(matrix_row_start - matrix_row_delta) - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)));
 			glEnd();
 			glBegin(GL_LINES);
 			glColor3f(0, 0, 0);
-			glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)), 
-					(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)));
-			glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)), 
-					matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)));
+			glVertex2f(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)), 
+					(matrix_row_start - matrix_row_delta) - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)));
+			glVertex2f(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)), 
+					matrix_row_start - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)));
 			glEnd();
 			// Axis bars, values, pearson correlation coefficient (r), and covariance (cov)
 			// Don't add to main diagonal
@@ -359,8 +361,8 @@ void drawScreen() {
 				// Display only Pearson correlation coefficient (r) and covariance (cov)
 				display_string = "r=" + to_string(wine_scatterplot_correlation_coefficient[matrix_row_index][matrix_col_index]) + ",cov=" + 
 							to_string(wine_covariance[matrix_row_index][matrix_col_index]);
-				displayString(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + 0.08f,
-						matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + 0.005f, 
+				displayString(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + 0.08f,
+						matrix_row_start - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + 0.005f, 
 						display_string);
 			}
 			else {
@@ -368,34 +370,34 @@ void drawScreen() {
 					// Y-axis
 					glBegin(GL_LINES);
 					glColor3f(0, 0, 0);
-					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)),
-							(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + (axis_index * matrix_col_delta / 5));
-					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) - 0.02f,
-							(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + (axis_index * matrix_col_delta / 5));
+					glVertex2f(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)),
+							(matrix_row_start - matrix_row_delta) - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + (axis_index * matrix_row_delta / 5));
+					glVertex2f(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - 0.02f,
+							(matrix_row_start - matrix_row_delta) - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + (axis_index * matrix_row_delta / 5));
 					glEnd();
-					display_string = to_string(axis_index / 5.0f * max_wine_variable_value[matrix_col_index]);
+					display_string = to_string(axis_index / 5.0f * max_wine_variable_value[matrix_row_index]);
 					display_string.resize(4);
-					displayString(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) - 0.08f,
-							(matrix_col_start - matrix_col_delta)- (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + (axis_index * matrix_col_delta / 5) - 0.01f, 
+					displayString(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - 0.08f,
+							(matrix_row_start - matrix_row_delta)- (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + (axis_index * matrix_row_delta / 5) - 0.01f, 
 							display_string);
 					// X-axis
 					glBegin(GL_LINES);
 					glColor3f(0, 0, 0);
-					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + (axis_index * matrix_row_delta / 5),
-							(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)));
-					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + (axis_index * matrix_row_delta / 5),
-							(matrix_col_start - matrix_col_delta)- (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - 0.02f);
+					glVertex2f(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + (axis_index * matrix_col_delta / 5),
+							(matrix_row_start - matrix_row_delta) - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)));
+					glVertex2f(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + (axis_index * matrix_col_delta / 5),
+							(matrix_row_start - matrix_row_delta)- (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) - 0.02f);
 					glEnd();
-					display_string = to_string(axis_index / 5.0f * max_wine_variable_value[matrix_row_index]);
+					display_string = to_string(axis_index / 5.0f * max_wine_variable_value[matrix_col_index]);
 					display_string.resize(4);
-					displayString(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + (axis_index * matrix_row_delta / 5) - 0.03f,
-							(matrix_col_start - matrix_col_delta)- (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - 0.05f, display_string);
+					displayString(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + (axis_index * matrix_col_delta / 5) - 0.03f,
+							(matrix_row_start - matrix_row_delta)- (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) - 0.05f, display_string);
 				}
 				// Pearson correlation coefficient (r) and covariance (cov)
 				display_string = "r=" + to_string(wine_scatterplot_correlation_coefficient[matrix_row_index][matrix_col_index]) + ",cov=" + 
 							to_string(wine_covariance[matrix_row_index][matrix_col_index]);
-				displayString(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + 0.08f,
-						matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + 0.005f, 
+				displayString(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + 0.08f,
+						matrix_row_start - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + 0.005f, 
 						display_string);
 			}
 		}
@@ -408,22 +410,22 @@ void drawScreen() {
 			if (matrix_row_index != matrix_col_index) {
 				for (wine_index = 0; wine_index < num_wine_data_points; wine_index++) {
 					// Find the points relative value in the scatter plot (between 0 and x and y delta's)
-					relative_scatterplot_x_value = wine_data[wine_index][matrix_row_index] / max_wine_variable_value[matrix_row_index] * matrix_row_delta;
-					relative_scatterplot_y_value = wine_data[wine_index][matrix_col_index] / max_wine_variable_value[matrix_col_index] * matrix_col_delta;
+					relative_scatterplot_x_value = wine_data[wine_index][matrix_col_index] / max_wine_variable_value[matrix_col_index] * matrix_col_delta;
+					relative_scatterplot_y_value = wine_data[wine_index][matrix_row_index] / max_wine_variable_value[matrix_row_index] * matrix_row_delta;
 					// Draw 'x'
 					glBegin(GL_LINES);
 					glColor3f(0, 0, 1);
-					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + relative_scatterplot_x_value - 0.01f, 
-							(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + relative_scatterplot_y_value + 0.01f) ;
-					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + relative_scatterplot_x_value + 0.01f, 
-							(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + relative_scatterplot_y_value - 0.01f) ;
+					glVertex2f(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + relative_scatterplot_x_value - 0.01f, 
+							(matrix_row_start - matrix_row_delta) - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + relative_scatterplot_y_value + 0.01f) ;
+					glVertex2f(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + relative_scatterplot_x_value + 0.01f, 
+							(matrix_row_start - matrix_row_delta) - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + relative_scatterplot_y_value - 0.01f) ;
 					glEnd();
 					glBegin(GL_LINES);
 					glColor3f(0, 0, 1);
-					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + relative_scatterplot_x_value - 0.01f, 
-							(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + relative_scatterplot_y_value - 0.01f) ;
-					glVertex2f(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + relative_scatterplot_x_value + 0.01f, 
-							(matrix_col_start - matrix_col_delta) - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + relative_scatterplot_y_value + 0.01f) ;
+					glVertex2f(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + relative_scatterplot_x_value - 0.01f, 
+							(matrix_row_start - matrix_row_delta) - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + relative_scatterplot_y_value - 0.01f) ;
+					glVertex2f(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + relative_scatterplot_x_value + 0.01f, 
+							(matrix_row_start - matrix_row_delta) - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + relative_scatterplot_y_value + 0.01f) ;
 					glEnd();
 				}	
 			}
@@ -441,12 +443,12 @@ void drawScreen() {
 				else {
 					// ERROR: should not reach here
 				}
-				displayString(matrix_row_start + (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + 0.1f,
-						matrix_col_start - (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) - (matrix_col_delta / 2), display_string);
+				displayString(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + 0.1f,
+						matrix_row_start - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) - (matrix_row_delta / 2), display_string);
 			}
 		}
 	}
-	
+
         // Swap to buffer
         glFlush();
         glutSwapBuffers();
