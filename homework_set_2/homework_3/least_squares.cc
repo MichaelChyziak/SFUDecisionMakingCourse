@@ -394,15 +394,10 @@ void drawScreen() {
 			glVertex2f(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)), 
 					matrix_row_start - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)));
 			glEnd();
-			// Axis bars, values, pearson correlation coefficient (r), and covariance (cov)
+			// Axis bars, values, and line equation
 			// Don't add to main diagonal
 			if (matrix_row_index == matrix_col_index) {
-				// Display only Pearson correlation coefficient (r) and covariance (cov)
-				display_string = "r=" + to_string(wine_scatterplot_correlation_coefficient[matrix_row_index][matrix_col_index]) + ",cov=" + 
-							to_string(wine_covariance[matrix_row_index][matrix_col_index]);
-				displayString(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + 0.08f,
-						matrix_row_start - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + 0.005f, 
-						display_string);
+				// Don't display anything
 			}
 			else {
 				for (axis_index = 0; axis_index < 6; axis_index++) {
@@ -432,9 +427,9 @@ void drawScreen() {
 					displayString(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + (axis_index * matrix_col_delta / 5) - 0.03f,
 							(matrix_row_start - matrix_row_delta)- (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) - 0.05f, display_string);
 				}
-				// Pearson correlation coefficient (r) and covariance (cov)
-				display_string = "r=" + to_string(wine_scatterplot_correlation_coefficient[matrix_row_index][matrix_col_index]) + ",cov=" + 
-							to_string(wine_covariance[matrix_row_index][matrix_col_index]);
+				// Line equation
+				display_string = "y = " + to_string(wine_least_squares[matrix_row_index][matrix_col_index][0]) + " + " + 
+						to_string(wine_least_squares[matrix_row_index][matrix_col_index][1]) + "x";
 				displayString(matrix_col_start + (matrix_col_index * (matrix_col_delta + matrix_col_buffer)) + 0.08f,
 						matrix_row_start - (matrix_row_index * (matrix_row_delta + matrix_row_buffer)) + 0.005f, 
 						display_string);
