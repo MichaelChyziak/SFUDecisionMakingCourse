@@ -42,6 +42,8 @@
 using namespace std;
 
 // Global constants
+bool button_pressed = false;
+bool initial_start = true;
 const int number_of_nodes = 10;
 // Node index [i][j]: i = node value. node j = 1 if i and j are connected by an edge, 0 if not
 const int node_connections[10][10] = 	{{0, 0, 1, 1, 1, 0, 1, 1, 0, 0}, // Gym
@@ -63,8 +65,8 @@ const int node_positions[10][2] = 	{{125, 300},
 					{735, 160},
 					{795, 410},
 					{880, 230},
-					{1075, 300},
-					{1150, 300}};
+					{1050, 300},
+					{1100, 300}};
 // Names of the nodes
 string node_names[10] = {"GYM",
 			"ENSC 429",
@@ -76,24 +78,6 @@ string node_names[10] = {"GYM",
 			"BUS STOP",
 			"A&W",
 			"TIM HORTONS"};
-
-/*
-class MyDesk : public Fl_Group {
-    // Draw mouse coords in small black rectangle
-    void draw_coords() {
-        // Coordinates as a string
-        char s[80];
-        sprintf(s, "x=%d y=%d", (int)Fl::event_x(), (int)Fl::event_y());
-        // Black rect
-        fl_color(FL_BLACK);
-        fl_rectf(10,10,200,25);
-        // White text
-        fl_color(FL_WHITE);
-        fl_font(FL_HELVETICA, 18);
-        fl_draw(s, 15, 25);
-    }
-};
-*/
 
 // -1 = no node selected, 0 - 9 = node value (index) selected
 int node_selected = -1;
@@ -109,42 +93,73 @@ class Graph : public Fl_Group {
 			// Variables
 			unsigned int node_index;
 			unsigned int edge_index;
+			unsigned int node_name_length;
+		
+			// Draw node names at top of display
+			fl_color(FL_BLACK);
+			fl_font(FL_HELVETICA, 16);
+			fl_draw("NODE NAMES:", 350, 25);
+			fl_line(345, 26, 470, 26);
+			if (initial_start == true) {
+				for (node_index = 0; node_index < 10; node_index++) {
+					fl_color(FL_BLACK);
+					fl_font(FL_HELVETICA, 16);
+					fl_draw(node_names[node_index].c_str(), 350, 50 + (25 * node_index));
+				}
+			}
 
+			if (button_pressed == true || initial_start == true) {
 			// Draw for each node -> name, node rectangle, edges connecting to node
 			for (node_index = 0; node_index < 10; node_index++) {
-				// Draw node names
-				fl_color(FL_BLACK);
-				fl_font(FL_HELVETICA, 18);
-				fl_draw(node_names[node_index].c_str(), x() + node_positions[node_index][0] - 15, y() + node_positions[node_index][1] - 15);
+				node_name_length = node_names[node_index].length();
 				// Blue rectangle (unless selected)
-				if (node_selected == node_index) {	
+				if (node_selected == node_index) {
 					fl_color(FL_RED);
 				}
 				else {
 					fl_color(FL_BLUE);
 				}
-				fl_color(FL_BLUE);
-				fl_rectf(x() + node_positions[node_index][0], y() + node_positions[node_index][1], 25, 25);
+				fl_rectf(x() + node_positions[node_index][0] - 2, y() + node_positions[node_index][1], node_name_length * 10, 25);
 				// Edge lines (blue unless selected)
 				for (edge_index = 0; edge_index < 10; edge_index++) {
 					// Only add an edge between nodes if it should exist
-					if (node_connections[node_index][edge_index] == 1) {
-						if (node_selected == node_index) {
+					if (node_connections[node_index][edge_index] == 1 || node_connections[edge_index][node_index] == 1) {
+						if (node_selected == node_index || node_selected == edge_index) {
 							fl_color(FL_RED);
 						}
 						else {
 							fl_color(FL_BLUE);
 						}
 						fl_line(x() + node_positions[node_index][0] + 12.5f, y() + node_positions[node_index][1] + 12.5f,
-								x() + node_positions[edge_index][0] + 12.5f, y() + node_positions[edge_index][1] + 12.5f);
+							x() + node_positions[edge_index][0] + 12.5f, y() + node_positions[edge_index][1] + 12.5f);
 					}
 				}
-				// Black text (above rectangle)
-				// TODO
+				// Draw node names inside rectangle
+				fl_color(FL_WHITE);
+				fl_font(FL_HELVETICA, 12);
+				fl_draw(node_names[node_index].c_str(), x() + node_positions[node_index][0], y() + node_positions[node_index][1] + 18);
+			}
+			button_pressed = false;
+			initial_start = false;
 			}
 		}
 	public:
 		Graph(int x, int y, int w, int h, const char *l=0) : Fl_Group(x,y,w,h,l) {}
+		//TODO
+		int handle(int e) {
+			int ret = Fl_Group::handle(e);
+			switch ( e ) {
+				case FL_ENTER:
+					ret = 1; // FL_ENTER: must return(1) to receive FL_MOVE
+					break;
+				case FL_MOVE: // FL_MOVE: mouse movement causes 'user damage' and redraw..
+					damage(FL_DAMAGE_USER1);
+					ret = 1; 
+					break;
+				}
+			ret = 1;
+			return(ret);
+		}
 };
 
 int main(int argc, char **argv) {
@@ -170,17 +185,20 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 	resized_sfu_burnaby_campus = (Fl_PNG_Image *) sfu_burnaby_campus->copy(1200, 600); // Preserving image ratio
-	
+
 	// Main window children
 	main_window->begin();
 		// Creates the user input and button to accept the input
-		user_input = new Fl_Input(100, 50, 200, 50, "Node:"); // Child 0
-		find_node = new Fl_Button(100, 150, 200, 50, "Find User Node"); // Child 1
+		user_input = new Fl_Input(100, 50, 200, 50, "Node:"); // Child 0 TODO
+		find_node = new Fl_Button(100, 150, 200, 50, "Find User Node"); // Child 1 TODO
+		// Displays all of the possible user string options
+		// TODO
 		// Creates a box and places the image of sfu into the box
 		main_screen = new Fl_Box(0, 300, 1200, 600); // Child 2
+		main_screen->box(FL_FLAT_BOX);
 		main_screen->image(resized_sfu_burnaby_campus);
 		// Draw graph's/edge's
-		Graph graph(0, 300, 1200, 600);
+		Graph graph(0, 300, 1200, 600); // Child 3
 	main_window->end();
 
 	// Callback functions
@@ -193,134 +211,27 @@ int main(int argc, char **argv) {
 
 // TODO
 void findNode(Fl_Widget *widget, void *) {
-	
+
 	// Variables
 	Fl_Button *find_node=(Fl_Button*)widget;
 	Fl_Input *user_input = (Fl_Input*) find_node->parent()->child(0);
+	Graph *graph = (Graph*) find_node->parent()->child(3);
+	unsigned int node_index;
 
-	// TODO FINISH
-	
-	// TODO REMOVE DEBUG/TEST
-	printf("%s\n", user_input->value());
+	// Redraw with the selected node and edges highlighted if a valid node name is given
+	for (node_index = 0; node_index < 10; node_index++) {
+		if (user_input->value() == node_names[node_index]) {
+			node_selected = node_index;
+			button_pressed = true;
+			graph->redraw();
+		}
+		else {
+			// Do nothing
+		}
+	}
+
+	// Notify user that input was invalid and to try again
+	if (button_pressed == false) {
+		printf("Invalid node name. Try again!\n");
+	}
 }
-
-/*
-// FLTK (1.3) includes
-#include <FL/Fl.H>
-#include <FL/Fl_Box.H>
-#include <Fl/Fl_Window.H>
-
-using namespace std;
-
-int main(int agrc, char **argv) {
-
-
-
-	// Create the main window
-	Fl_Window main_window(1200, 900, "Michael Chyziak - Homework 6");
-
-	// Set the burnaby campus image as background
-	Fl_Box background(0, 0, 1200, 900);
-	background.image(sfu_burnaby_campus);
-	//background.resize(-200, 200, 1200, 900);
-
-	// Show the window and run
-	main_window.show();
-	return Fl::run();
-}
-*/
-/*
-// Global Constants
-// TODO
-
-// Function Declarations
-// TODO
-void detectKeyboard(unsigned char key, int x, int y);
-void displayGUI(int argc, char **argv);
-void drawScreen();
-void displayString(float x, float y, string input);
-
-// Global Variables
-// TODO
-
-int main(int argc, char **argv) {
-
-	// Variables
-	int status;
-
-	// Run GUI
-	displayGUI(argc, argv);
-}
-
-// Pressing escape closes the GUI
-void detectKeyboard(unsigned char key, int x, int y) {
-
-        // If escape is pressed, quit the GUI
-        if (key == 27) {
-                printf("Closing GUI.\n");
-                glutLeaveMainLoop();
-        }
-}
-
-// Sets up OpenGL of scatter plots as well as a keyboard function
-void displayGUI(int argc, char **argv) {
-
-	// Initialize GLUT and process user parameters
-        glutInit(&argc, argv);
-
-        // Request double buffered true colour window with Z-buffer
-        glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-
-        // Create window
-        glutInitWindowSize(1200, 900);
-        glutInitWindowPosition(100, 100);
-        glutCreateWindow("ENSC482 Michael Chyziak - Homework 3");
-
-        // Update depth buffer if test passes
-        // glEnable(GL_DEPTH_TEST);
-
-        // Callback functions
-        glutDisplayFunc(drawScreen);
-        glutKeyboardFunc(detectKeyboard);
-
-        // Pass control to GLUT for events
-        glutMainLoop();
-}
-
-// Draws the 3x3 matrix with scatter plot of the 3 wine variables (alcohol, colour intensity, hue)
-void drawScreen() {
-
-	// Variables
-	// TODO
-
-        // Set Background Color to a light grey
-        glClearColor(0.4, 0.4, 0.4, 1.0);
-
-        // Clear screen
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Reset transformations
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-	
-	// TODO DO the thing
-	
-        // Swap to buffer
-        glFlush();
-        glutSwapBuffers();
-}
-
-// Displays the input string on the screen at co-ordinates x and y
-// Display is done in bitmap 18 font helvetica, black
-void displayString(float x, float y, string input) {
-	
-	// Cast string to specific format for glutBitmapString function
-	const unsigned char* input_cast = reinterpret_cast<const unsigned char*>
-		(input.c_str());
-
-	// Display black string on screen
-	glColor3f(0, 0, 0);
-	glRasterPos2f(x, y);
-	glutBitmapString(GLUT_BITMAP_HELVETICA_18, input_cast);
-}
-*/
