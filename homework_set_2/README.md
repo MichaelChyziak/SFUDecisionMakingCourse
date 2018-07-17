@@ -22,7 +22,7 @@ Some executables might require the latest version of the following tools so it i
 ```
 For folders "homework_6" and "homework_7" this additional command is required to use FLTK (version 1.3).
 ```
-sudo apt install fltk1.3-dev
+> sudo apt install fltk1.3-dev
 ```
 
 ## SUBMISSION FILES
