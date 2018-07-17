@@ -2,7 +2,8 @@
 // Date: Wednesday July 2, 2018
 //
 // Program description:
-// 	TODO
+// 	Takes each of the off diagonal scatterplots of homework_2 and computes the Least-Squares Regression Lines. 
+// 	Displays similar to homework_2 but shows the LSRL equation as well as the line in red
 // Required supplementary files:
 // 	wine.data
 // Got data set from here: 

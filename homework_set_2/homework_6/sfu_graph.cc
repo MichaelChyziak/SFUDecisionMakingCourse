@@ -2,13 +2,12 @@
 // Date: Wednesday July 5, 2018
 //
 // Program description:
-// 	TODO
+// 	Displays 10 distributed locations on the map of SFU’s Burnaby campus which I usually visit as nodes with edges (in blue).
+// 	User can input a node and it will highlight that node and its corresponding edges in red.
 // Required supplementary files:
-// 	TODO
+// 	./Burnaby_campus_cropped.png
 // Got SFU burnaby campus map from here (un-cropped): 
 // 	http://www.sfu.ca/content/dam/sfu/fs/files/Campus%20maps/Burnaby%20aerial%20map.pdf
-// TODO THIS one included doing "sudo apt install fltk1.3-dev" to get fltk (version 1.3)
-// // TODO THIS IS WRONG -> MAKE IT PROPER ->~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~g++ sfu_graph.cc -lm -lglut -lGL -lGLU -o sfu_graph
 
 // Standard libraries
 #include <iostream>
@@ -85,8 +84,7 @@ int node_selected = -1;
 // Function Declarations
 void findNode(Fl_Widget *widget, void *);
 
-// TODO add description of class
-// TODO add when a node is selected, that its edges turn red (as well as the node)
+// Displays the graph nodes and edges in their proper colour
 class Graph : public Fl_Group {
 	protected:
 		void draw() {
@@ -145,7 +143,7 @@ class Graph : public Fl_Group {
 		}
 	public:
 		Graph(int x, int y, int w, int h, const char *l=0) : Fl_Group(x,y,w,h,l) {}
-		//TODO
+		// Redraw handle
 		int handle(int e) {
 			int ret = Fl_Group::handle(e);
 			switch ( e ) {
@@ -189,10 +187,8 @@ int main(int argc, char **argv) {
 	// Main window children
 	main_window->begin();
 		// Creates the user input and button to accept the input
-		user_input = new Fl_Input(100, 50, 200, 50, "Node:"); // Child 0 TODO
-		find_node = new Fl_Button(100, 150, 200, 50, "Find User Node"); // Child 1 TODO
-		// Displays all of the possible user string options
-		// TODO
+		user_input = new Fl_Input(100, 50, 200, 50, "Node:"); // Child 0
+		find_node = new Fl_Button(100, 150, 200, 50, "Find User Node"); // Child 1
 		// Creates a box and places the image of sfu into the box
 		main_screen = new Fl_Box(0, 300, 1200, 600); // Child 2
 		main_screen->box(FL_FLAT_BOX);
@@ -209,7 +205,7 @@ int main(int argc, char **argv) {
 	return Fl::run();
 }
 
-// TODO
+// Finds the node that was selected and redraws the graph with the node and its edges in red
 void findNode(Fl_Widget *widget, void *) {
 
 	// Variables

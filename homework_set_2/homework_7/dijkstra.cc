@@ -2,16 +2,16 @@
 // Date: Wednesday July 15, 2018
 //
 // Program description:
-// 	TODO
+// 	10 distributed locations in my home neighbourhood as seen through google maps. 
+// 	Each location is a node with places I travel to/from connected by an edge.
+// 	If the user inputs a start and end node it will use dijkstra's algorithm to find the quickest path (highlighted in red).
+// 	Weights of edges are estimated times it takes to walk from one node to another
 // Required supplementary files:
-// 	TODO
+// 	./google_map.png
 // Got SFU burnaby campus map from here (un-cropped): 
 // 	http://www.sfu.ca/content/dam/sfu/fs/files/Campus%20maps/Burnaby%20aerial%20map.pdf
 // Borrowed some source code from:
 // 	https://www.geeksforgeeks.org/printing-paths-dijkstras-shortest-path-algorithm/
-// TODO THIS one included doing "sudo apt install fltk1.3-dev" to get fltk (version 1.3)
-// // TODO THIS IS WRONG -> MAKE IT PROPER ->~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~g++ dijkstra.cc -lm -lglut -lGL -lGLU -o dijkstra
-// TODO -> this is proper: fltk-config --use-images --compile dijstra.cc
 
 // Standard libraries
 #include <iostream>
@@ -107,8 +107,7 @@ void printPath(int parent[], int prev, int j);
 int minDistance(int dist[], bool sptSet[]);
 void dijkstra(int graph[V][V], int src, int dest);
 
-// TODO add description of class
-// TODO add when a node is selected, that its edges turn red (as well as the node)
+// Displays the entire graph structure on the screen along with nodes and edges (with proper colours)
 class Graph : public Fl_Group {
 	protected:
 		void draw() {
@@ -145,7 +144,6 @@ class Graph : public Fl_Group {
 				// Edge lines (blue unless selected)
 				for (edge_index = 0; edge_index < 10; edge_index++) {
 					// Only add an edge between nodes if it should exist
-					// TODO
 					if (node_connections[node_index][edge_index] > 0 || node_connections[edge_index][node_index] > 0) {
 						if (node_dijkstra[node_index][edge_index] == 1 || node_dijkstra[edge_index][node_index] == 1) {
 							fl_color(FL_RED);
@@ -175,7 +173,7 @@ class Graph : public Fl_Group {
 		}
 	public:
 		Graph(int x, int y, int w, int h, const char *l=0) : Fl_Group(x,y,w,h,l) {}
-		//TODO
+		// Redraw
 		int handle(int e) {
 			int ret = Fl_Group::handle(e);
 			switch ( e ) {
@@ -239,7 +237,7 @@ int main(int argc, char **argv) {
 	return Fl::run();
 }
 
-// TODO
+// Finds the start and end nodes and displays their quickest path using dijkstra's algorithm 
 void findNode(Fl_Widget *widget, void *) {
 
 	// Variables
@@ -271,7 +269,6 @@ void findNode(Fl_Widget *widget, void *) {
 		printf("Invalid end node name. Try again!\n");
 	}
 	else {
-		// TODO
 		button_pressed = true;
 		dijkstra(node_connections, node_start, node_end);
 		graph->redraw();
@@ -336,7 +333,6 @@ void dijkstra(int graph[V][V], int src, int dest) {
 	}
 
 	// change the edges as done in djikstra's algorithm
-	// TODO
 	printPath(parent, src, dest);
 }
 

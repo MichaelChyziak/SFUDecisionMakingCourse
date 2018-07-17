@@ -2,7 +2,10 @@
 // Date: Wednesday June 30, 2018
 //
 // Program description:
-// 	TODO
+// 	Uses the wine dataset and defines the three variables (alcohol, colour intensity, and hue).
+//	These three variables are shown against each other in a scatterplot in a 3x3 matrix where only the offdiagonals are scatterplots.
+//	The bottom triangle and top triangle of the matrix are transpose of each other.
+//	The data set also includes the correlation coefficition (r) for each scatter plot and the covariance (cov)
 // Required supplementary files:
 // 	wine.data
 // Got data set from here: 
