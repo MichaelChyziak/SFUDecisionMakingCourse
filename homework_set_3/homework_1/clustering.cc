@@ -357,7 +357,7 @@ void drawScreen() {
 		glVertex2f(matrix_x_start, matrix_y_start - matrix_y_delta + (axis_index * matrix_y_delta / 5));
 		glVertex2f(matrix_x_start - 0.02f, matrix_y_start - matrix_y_delta + (axis_index * matrix_y_delta / 5));
 		glEnd();
-		display_string = to_string((axis_index * (max_wine_variable_value[1] - min_wine_variable_value[1]) / 6.0f) + min_wine_variable_value[1]);
+		display_string = to_string((axis_index * (max_wine_variable_value[1] - min_wine_variable_value[1]) / 5.0f) + min_wine_variable_value[1]);
 		display_string.resize(4);
 		displayString(matrix_x_start - 0.08f, matrix_y_start - matrix_y_delta + (axis_index * matrix_y_delta / 5) - 0.01f, display_string);
 		// X-axis (alcohol)
@@ -366,7 +366,7 @@ void drawScreen() {
 		glVertex2f(matrix_x_start + (axis_index * matrix_x_delta / 5), matrix_y_start - matrix_y_delta);
 		glVertex2f(matrix_x_start + (axis_index * matrix_x_delta / 5), matrix_y_start - matrix_y_delta - 0.02f);
 		glEnd();
-		display_string = to_string((axis_index * (max_wine_variable_value[0] - min_wine_variable_value[0]) / 6.0f) + min_wine_variable_value[0]);
+		display_string = to_string((axis_index * (max_wine_variable_value[0] - min_wine_variable_value[0]) / 5.0f) + min_wine_variable_value[0]);
 		display_string.resize(4);
 		displayString(matrix_x_start + (axis_index * matrix_x_delta / 5) - 0.03f, matrix_y_start - matrix_y_delta - 0.05f, display_string);
 	}
