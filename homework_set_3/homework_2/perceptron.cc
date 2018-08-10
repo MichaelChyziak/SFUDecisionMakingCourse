@@ -74,9 +74,9 @@ int main(int argc, char **argv) {
 	}
 
 	// Initialize perceptron weights to a 1 vector
-	weight_class_1 = {1, 1, 1};
-	weight_class_2 = {1, 1, 1};
-	weight_class_3 = {1, 1, 1};
+	weight_class_1 = {0, 0, 0};
+	weight_class_2 = {0, 0, 0};
+	weight_class_3 = {0, 0, 0};
 
 	// Run GUI
 	displayGUI(argc, argv);
@@ -246,7 +246,7 @@ void detectKeyboard(unsigned char key, int x, int y) {
     }
 
     else if (key == 13 && done_k_means == true && done_perceptron == false) {
-    	for (current_epoch = 0; current_epoch < 1000; current_epoch++) { 
+    	for (current_epoch = 0; current_epoch < 10000; current_epoch++) { 
 	    	// class_1 weight calculation
 	    	for (wine_data_index = 0; wine_data_index < wine_data_cluster_1.size(); wine_data_index++) {
 	    		perceptron_value = (wine_data_cluster_1[wine_data_index].first * weight_class_1[0]) + (wine_data_cluster_1[wine_data_index].second * weight_class_1[1]) + (constant_bias * weight_class_1[2]);
@@ -287,14 +287,14 @@ void detectKeyboard(unsigned char key, int x, int y) {
 	    			num_correct_weights_1++;
 	    		}
 	    	}
-
+/*
 	    	// class_2 weight calculation
-	    	for (wine_data_index = 0; wine_data_index < wine_data_cluster_1.size(); wine_data_index++) {
+	    	for (wine_data_index = 0; wine_data_index < wine_data_cluster_2.size(); wine_data_index++) {
 	    		perceptron_value = (wine_data_cluster_2[wine_data_index].first * weight_class_2[0]) + (wine_data_cluster_2[wine_data_index].second * weight_class_2[1]) + (constant_bias * weight_class_2[2]);
 	    		// Adjust if <= 0
 	    		if (perceptron_value <= 0) {
-	    			weight_class_2[0] = weight_class_2[0] + (correction_increment * wine_data_cluster_1[wine_data_index].first);
-	    			weight_class_2[1] = weight_class_2[1] + (correction_increment * wine_data_cluster_1[wine_data_index].second);
+	    			weight_class_2[0] = weight_class_2[0] + (correction_increment * wine_data_cluster_2[wine_data_index].first);
+	    			weight_class_2[1] = weight_class_2[1] + (correction_increment * wine_data_cluster_2[wine_data_index].second);
 	    			weight_class_2[2] = weight_class_2[2] + (correction_increment * constant_bias);
 	    		}
 	    		else {
@@ -302,12 +302,12 @@ void detectKeyboard(unsigned char key, int x, int y) {
 	    			num_correct_weights_2++;
 	    		}
 	    	}
-	    	for (wine_data_index = 0; wine_data_index < wine_data_cluster_2.size(); wine_data_index++) {
+	    	for (wine_data_index = 0; wine_data_index < wine_data_cluster_1.size(); wine_data_index++) {
 	    		perceptron_value = (wine_data_cluster_1[wine_data_index].first * weight_class_2[0]) + (wine_data_cluster_1[wine_data_index].second * weight_class_2[1]) + (constant_bias * weight_class_2[2]);
 	    		// Adjust if >= 0
 	    		if (perceptron_value >= 0) {
-	    			weight_class_2[0] = weight_class_2[0] - (correction_increment * wine_data_cluster_2[wine_data_index].first);
-	    			weight_class_2[1] = weight_class_2[1] - (correction_increment * wine_data_cluster_2[wine_data_index].second);
+	    			weight_class_2[0] = weight_class_2[0] - (correction_increment * wine_data_cluster_1[wine_data_index].first);
+	    			weight_class_2[1] = weight_class_2[1] - (correction_increment * wine_data_cluster_1[wine_data_index].second);
 	    			weight_class_2[2] = weight_class_2[2] - (correction_increment * constant_bias);
 	    		}
 	    		else {
@@ -328,14 +328,14 @@ void detectKeyboard(unsigned char key, int x, int y) {
 	    			num_correct_weights_2++;
 	    		}
 	    	}
-
+*/
 	    	// class_3 weight calculation
-	    	for (wine_data_index = 0; wine_data_index < wine_data_cluster_1.size(); wine_data_index++) {
+	    	for (wine_data_index = 0; wine_data_index < wine_data_cluster_3.size(); wine_data_index++) {
 	    		perceptron_value = (wine_data_cluster_3[wine_data_index].first * weight_class_3[0]) + (wine_data_cluster_3[wine_data_index].second * weight_class_3[1]) + (constant_bias * weight_class_3[2]);
 	    		// Adjust if <= 0
 	    		if (perceptron_value <= 0) {
-	    			weight_class_3[0] = weight_class_3[0] + (correction_increment * wine_data_cluster_1[wine_data_index].first);
-	    			weight_class_3[1] = weight_class_3[1] + (correction_increment * wine_data_cluster_1[wine_data_index].second);
+	    			weight_class_3[0] = weight_class_3[0] + (correction_increment * wine_data_cluster_3[wine_data_index].first);
+	    			weight_class_3[1] = weight_class_3[1] + (correction_increment * wine_data_cluster_3[wine_data_index].second);
 	    			weight_class_3[2] = weight_class_3[2] + (correction_increment * constant_bias);
 	    		}
 	    		else {
@@ -356,12 +356,12 @@ void detectKeyboard(unsigned char key, int x, int y) {
 	    			num_correct_weights_3++;
 	    		}
 	    	}
-	    	for (wine_data_index = 0; wine_data_index < wine_data_cluster_3.size(); wine_data_index++) {
+	    	for (wine_data_index = 0; wine_data_index < wine_data_cluster_1.size(); wine_data_index++) {
 	    		perceptron_value = (wine_data_cluster_1[wine_data_index].first * weight_class_3[0]) + (wine_data_cluster_1[wine_data_index].second * weight_class_3[1]) + (constant_bias * weight_class_3[2]);
 	    		// Adjust if >= 0
 	    		if (perceptron_value >= 0) {
-	    			weight_class_3[0] = weight_class_3[0] - (correction_increment * wine_data_cluster_3[wine_data_index].first);
-	    			weight_class_3[1] = weight_class_3[1] - (correction_increment * wine_data_cluster_3[wine_data_index].second);
+	    			weight_class_3[0] = weight_class_3[0] - (correction_increment * wine_data_cluster_1[wine_data_index].first);
+	    			weight_class_3[1] = weight_class_3[1] - (correction_increment * wine_data_cluster_1[wine_data_index].second);
 	    			weight_class_3[2] = weight_class_3[2] - (correction_increment * constant_bias);
 	    		}
 	    		else {
@@ -372,7 +372,8 @@ void detectKeyboard(unsigned char key, int x, int y) {
 
 
 	    	// Check if done or not
-	    	if (num_correct_weights_1 == wine_data_original.size() && num_correct_weights_2 == wine_data_original.size() && num_correct_weights_3 == wine_data_original.size()) {
+	    	// if (num_correct_weights_1 == wine_data_original.size() && num_correct_weights_2 == wine_data_original.size() && num_correct_weights_3 == wine_data_original.size()) {
+	    	if (num_correct_weights_1 == wine_data_original.size() && num_correct_weights_3 == wine_data_original.size()) {
 	    		done_perceptron = true;
 	    		break;
 	    	}
@@ -401,6 +402,17 @@ void detectKeyboard(unsigned char key, int x, int y) {
 		wine_data_mean_1 = make_pair(wine_data_original[0].first, wine_data_original[0].second);
 		wine_data_mean_2 = make_pair(wine_data_original[1].first, wine_data_original[1].second);
 		wine_data_mean_3 = make_pair(wine_data_original[2].first, wine_data_original[2].second);
+		weight_class_1[0] = 0;
+		weight_class_1[1] = 0;
+		weight_class_1[2] = 0;
+/*
+		weight_class_2[0] = 0;
+		weight_class_2[1] = 0;
+		weight_class_2[2] = 0;
+*/
+		weight_class_3[0] = 0;
+		weight_class_3[1] = 0;
+		weight_class_3[2] = 0;
 		glutPostRedisplay();
     }
 }
@@ -713,7 +725,7 @@ void drawScreen() {
 				glEnd();
 			}
 		}
-
+/*
 		// Class 2
 		decision_boundary_start_x = -1 * (weight_class_2[1] * min_wine_variable_value[1] + weight_class_2[2]) / weight_class_2[0];
 		decision_boundary_end_x = -1 * (weight_class_2[1] * max_wine_variable_value[1] + weight_class_2[2]) / weight_class_2[0];
@@ -773,7 +785,7 @@ void drawScreen() {
 				glEnd();
 			}
 		}
-
+*/
 		// Class 3
 		decision_boundary_start_x = -1 * (weight_class_3[1] * min_wine_variable_value[1] + weight_class_3[2]) / weight_class_3[0];
 		decision_boundary_end_x = -1 * (weight_class_3[1] * max_wine_variable_value[1] + weight_class_3[2]) / weight_class_3[0];
@@ -788,21 +800,21 @@ void drawScreen() {
 		if (decision_boundary_start_x <= matrix_x_delta && decision_boundary_start_x >= 0) {
 			if (decision_boundary_end_x <= matrix_x_delta && decision_boundary_end_x >= 0) {
 				glBegin(GL_LINES);
-				glColor3f(0.3, 0.3, 0.3);
+				glColor3f(0.7, 0, 0.7);
 				glVertex2f(matrix_x_start + decision_boundary_start_x, matrix_y_start - matrix_y_delta + 0);
 				glVertex2f(matrix_x_start + decision_boundary_end_x, matrix_y_start - matrix_y_delta + matrix_y_delta);
 				glEnd();
 			}
 			else if (decision_boundary_start_y <= matrix_y_delta && decision_boundary_start_y >= 0) {
 				glBegin(GL_LINES);
-				glColor3f(0.3, 0.3, 0.3);
+				glColor3f(0.7, 0, 0.7);
 				glVertex2f(matrix_x_start + decision_boundary_start_x, matrix_y_start - matrix_y_delta + 0);
 				glVertex2f(matrix_x_start + 0, matrix_y_start - matrix_y_delta + decision_boundary_start_y);
 				glEnd();
 			}
 			else if (decision_boundary_end_y <= matrix_y_delta && decision_boundary_end_y >= 0) {
 				glBegin(GL_LINES);
-				glColor3f(0.3, 0.3, 0.3);
+				glColor3f(0.7, 0, 0.7);
 				glVertex2f(matrix_x_start + decision_boundary_start_x, matrix_y_start - matrix_y_delta + 0);
 				glVertex2f(matrix_x_start + matrix_x_delta, matrix_y_start - matrix_y_delta + decision_boundary_end_y);
 				glEnd();
@@ -811,14 +823,14 @@ void drawScreen() {
 		else if (decision_boundary_end_x <= matrix_x_delta && decision_boundary_end_x >= 0) {
 			if (decision_boundary_start_y <= matrix_y_delta && decision_boundary_start_y >= 0) {
 				glBegin(GL_LINES);
-				glColor3f(0.3, 0.3, 0.3);
+				glColor3f(0.7, 0, 0.7);
 				glVertex2f(matrix_x_start + decision_boundary_end_x, matrix_y_start - matrix_y_delta + matrix_y_delta);
 				glVertex2f(matrix_x_start + 0, matrix_y_start - matrix_y_delta + decision_boundary_start_y);
 				glEnd();
 			}
 			else if (decision_boundary_end_y <= matrix_y_delta && decision_boundary_end_y >= 0) {
 				glBegin(GL_LINES);
-				glColor3f(0.3, 0.3, 0.3);
+				glColor3f(0.7, 0, 0.7);
 				glVertex2f(matrix_x_start + decision_boundary_end_x, matrix_y_start - matrix_y_delta + matrix_y_delta);
 				glVertex2f(matrix_x_start + matrix_x_delta, matrix_y_start - matrix_y_delta + decision_boundary_end_y);
 				glEnd();
@@ -827,7 +839,7 @@ void drawScreen() {
 		else if (decision_boundary_start_y <= matrix_x_delta && decision_boundary_start_y >= 0) {
 			if (decision_boundary_end_y <= matrix_y_delta && decision_boundary_end_y >= 0) {
 				glBegin(GL_LINES);
-				glColor3f(0.3, 0.3, 0.3);
+				glColor3f(0.7, 0, 0.7);
 				glVertex2f(matrix_x_start + 0, matrix_y_start - matrix_y_delta + decision_boundary_start_y);
 				glVertex2f(matrix_x_start + matrix_x_delta, matrix_y_start - matrix_y_delta + decision_boundary_end_y);
 				glEnd();
@@ -842,7 +854,7 @@ void drawScreen() {
 	}
 	else if (done_perceptron == false) {
 		displayString(-0.5f, 0.85f, "Perceptron decision boundary of Wine Alcohol vs Wine Hue (epoch: " + to_string(epoch) + ")");
-		displayString(-0.5f, 0.8f, "k-means algorithm complete at iteration " + to_string(iteration) + ". To increase epoch: Press Enter");
+		displayString(-0.5f, 0.8f, "k-means algorithm complete at iteration " + to_string(iteration) + ". To increase epoch by 10,000: Press Enter");
 	}
 	else {
 		displayString(-0.5f, 0.85f, "Perceptron decision boundary of Wine Alcohol vs Wine Hue (epoch: " + to_string(epoch) + ")");
@@ -915,7 +927,29 @@ void drawScreen() {
 	glVertex2f(0.74, 0.14);
 	glVertex2f(0.72, 0.14);
 	glEnd();
-	// TODO add class 1,2,3 boundary lines to legend
+	displayString(0.75f, 0.06f, "Data 1 Decision");
+	displayString(0.75f, 0.02f, "Boundary");
+	glBegin(GL_LINES);
+	glColor3f(0.3, 0.3, 0.3);
+	glVertex2f(0.72, 0.08);
+	glVertex2f(0.74, 0.08);
+	glEnd();
+/*
+	displayString(0.75f, -0.05f, "Data 2 Decision");
+	displayString(0.75f, -0.09f, "Boundary");
+	glBegin(GL_LINES);
+	glColor3f(0.7, 0, 0.7);
+	glVertex2f(0.72, -0.03);
+	glVertex2f(0.74, -0.03);
+	glEnd();
+*/
+	displayString(0.75f, -0.05f, "Data 3 Decision");
+	displayString(0.75f, -0.09f, "Boundary");
+	glBegin(GL_LINES);
+	glColor3f(0.7, 0, 0.7);
+	glVertex2f(0.72, -0.03);
+	glVertex2f(0.74, -0.03);
+	glEnd();
 
     // Swap to buffer
     glFlush();
