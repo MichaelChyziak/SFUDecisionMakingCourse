@@ -2,7 +2,7 @@
 // Date: Tuesday August 7, 2018
 //
 // Program description:
-// 	TODO
+// 	Reads wine data and clusters the data into 3 clusters. Then it uses perceptrons to create decision boundaries between each cluster.
 // Required supplementary files:
 // 	wine.data
 // Got data set from here: 
@@ -287,48 +287,7 @@ void detectKeyboard(unsigned char key, int x, int y) {
 	    			num_correct_weights_1++;
 	    		}
 	    	}
-/*
-	    	// class_2 weight calculation
-	    	for (wine_data_index = 0; wine_data_index < wine_data_cluster_2.size(); wine_data_index++) {
-	    		perceptron_value = (wine_data_cluster_2[wine_data_index].first * weight_class_2[0]) + (wine_data_cluster_2[wine_data_index].second * weight_class_2[1]) + (constant_bias * weight_class_2[2]);
-	    		// Adjust if <= 0
-	    		if (perceptron_value <= 0) {
-	    			weight_class_2[0] = weight_class_2[0] + (correction_increment * wine_data_cluster_2[wine_data_index].first);
-	    			weight_class_2[1] = weight_class_2[1] + (correction_increment * wine_data_cluster_2[wine_data_index].second);
-	    			weight_class_2[2] = weight_class_2[2] + (correction_increment * constant_bias);
-	    		}
-	    		else {
-	    			// Don't adjust the weight
-	    			num_correct_weights_2++;
-	    		}
-	    	}
-	    	for (wine_data_index = 0; wine_data_index < wine_data_cluster_1.size(); wine_data_index++) {
-	    		perceptron_value = (wine_data_cluster_1[wine_data_index].first * weight_class_2[0]) + (wine_data_cluster_1[wine_data_index].second * weight_class_2[1]) + (constant_bias * weight_class_2[2]);
-	    		// Adjust if >= 0
-	    		if (perceptron_value >= 0) {
-	    			weight_class_2[0] = weight_class_2[0] - (correction_increment * wine_data_cluster_1[wine_data_index].first);
-	    			weight_class_2[1] = weight_class_2[1] - (correction_increment * wine_data_cluster_1[wine_data_index].second);
-	    			weight_class_2[2] = weight_class_2[2] - (correction_increment * constant_bias);
-	    		}
-	    		else {
-	    			// Don't adjust the weight
-	    			num_correct_weights_2++;
-	    		}
-	    	}
-	    	for (wine_data_index = 0; wine_data_index < wine_data_cluster_3.size(); wine_data_index++) {
-	    		perceptron_value = (wine_data_cluster_3[wine_data_index].first * weight_class_2[0]) + (wine_data_cluster_3[wine_data_index].second * weight_class_2[1]) + (constant_bias * weight_class_2[2]);
-	    		// Adjust if >= 0
-	    		if (perceptron_value >= 0) {
-	    			weight_class_2[0] = weight_class_2[0] - (correction_increment * wine_data_cluster_3[wine_data_index].first);
-	    			weight_class_2[1] = weight_class_2[1] - (correction_increment * wine_data_cluster_3[wine_data_index].second);
-	    			weight_class_2[2] = weight_class_2[2] - (correction_increment * constant_bias);
-	    		}
-	    		else {
-	    			// Don't adjust the weight
-	    			num_correct_weights_2++;
-	    		}
-	    	}
-*/
+
 	    	// class_3 weight calculation
 	    	for (wine_data_index = 0; wine_data_index < wine_data_cluster_3.size(); wine_data_index++) {
 	    		perceptron_value = (wine_data_cluster_3[wine_data_index].first * weight_class_3[0]) + (wine_data_cluster_3[wine_data_index].second * weight_class_3[1]) + (constant_bias * weight_class_3[2]);
@@ -405,11 +364,6 @@ void detectKeyboard(unsigned char key, int x, int y) {
 		weight_class_1[0] = 0;
 		weight_class_1[1] = 0;
 		weight_class_1[2] = 0;
-/*
-		weight_class_2[0] = 0;
-		weight_class_2[1] = 0;
-		weight_class_2[2] = 0;
-*/
 		weight_class_3[0] = 0;
 		weight_class_3[1] = 0;
 		weight_class_3[2] = 0;
@@ -725,67 +679,7 @@ void drawScreen() {
 				glEnd();
 			}
 		}
-/*
-		// Class 2
-		decision_boundary_start_x = -1 * (weight_class_2[1] * min_wine_variable_value[1] + weight_class_2[2]) / weight_class_2[0];
-		decision_boundary_end_x = -1 * (weight_class_2[1] * max_wine_variable_value[1] + weight_class_2[2]) / weight_class_2[0];
-		decision_boundary_start_y = -1 * (weight_class_2[0] * min_wine_variable_value[0] + weight_class_2[2]) / weight_class_2[1];
-		decision_boundary_end_y = -1 * (weight_class_2[0] * max_wine_variable_value[0] + weight_class_2[2]) / weight_class_2[1];
-		// Make boundary points relative to OpenGL graph (from 0 to 1.5)
-		decision_boundary_start_x = (decision_boundary_start_x - min_wine_variable_value[0]) / (max_wine_variable_value[0] - min_wine_variable_value[0]) * matrix_x_delta;
-		decision_boundary_end_x = (decision_boundary_end_x - min_wine_variable_value[0]) / (max_wine_variable_value[0] - min_wine_variable_value[0]) * matrix_x_delta;
-		decision_boundary_start_y = (decision_boundary_start_y - min_wine_variable_value[1]) / (max_wine_variable_value[1] - min_wine_variable_value[1]) * matrix_y_delta;
-		decision_boundary_end_y = (decision_boundary_end_y - min_wine_variable_value[1]) / (max_wine_variable_value[1] - min_wine_variable_value[1]) * matrix_y_delta;
-		// Find if points are valid to be drawn and draw them
-		if (decision_boundary_start_x <= matrix_x_delta && decision_boundary_start_x >= 0) {
-			if (decision_boundary_end_x <= matrix_x_delta && decision_boundary_end_x >= 0) {
-				glBegin(GL_LINES);
-				glColor3f(0.3, 0.3, 0.3);
-				glVertex2f(matrix_x_start + decision_boundary_start_x, matrix_y_start - matrix_y_delta + 0);
-				glVertex2f(matrix_x_start + decision_boundary_end_x, matrix_y_start - matrix_y_delta + matrix_y_delta);
-				glEnd();
-			}
-			else if (decision_boundary_start_y <= matrix_y_delta && decision_boundary_start_y >= 0) {
-				glBegin(GL_LINES);
-				glColor3f(0.3, 0.3, 0.3);
-				glVertex2f(matrix_x_start + decision_boundary_start_x, matrix_y_start - matrix_y_delta + 0);
-				glVertex2f(matrix_x_start + 0, matrix_y_start - matrix_y_delta + decision_boundary_start_y);
-				glEnd();
-			}
-			else if (decision_boundary_end_y <= matrix_y_delta && decision_boundary_end_y >= 0) {
-				glBegin(GL_LINES);
-				glColor3f(0.3, 0.3, 0.3);
-				glVertex2f(matrix_x_start + decision_boundary_start_x, matrix_y_start - matrix_y_delta + 0);
-				glVertex2f(matrix_x_start + matrix_x_delta, matrix_y_start - matrix_y_delta + decision_boundary_end_y);
-				glEnd();
-			}
-		}
-		else if (decision_boundary_end_x <= matrix_x_delta && decision_boundary_end_x >= 0) {
-			if (decision_boundary_start_y <= matrix_y_delta && decision_boundary_start_y >= 0) {
-				glBegin(GL_LINES);
-				glColor3f(0.3, 0.3, 0.3);
-				glVertex2f(matrix_x_start + decision_boundary_end_x, matrix_y_start - matrix_y_delta + matrix_y_delta);
-				glVertex2f(matrix_x_start + 0, matrix_y_start - matrix_y_delta + decision_boundary_start_y);
-				glEnd();
-			}
-			else if (decision_boundary_end_y <= matrix_y_delta && decision_boundary_end_y >= 0) {
-				glBegin(GL_LINES);
-				glColor3f(0.3, 0.3, 0.3);
-				glVertex2f(matrix_x_start + decision_boundary_end_x, matrix_y_start - matrix_y_delta + matrix_y_delta);
-				glVertex2f(matrix_x_start + matrix_x_delta, matrix_y_start - matrix_y_delta + decision_boundary_end_y);
-				glEnd();
-			}
-		}
-		else if (decision_boundary_start_y <= matrix_x_delta && decision_boundary_start_y >= 0) {
-			if (decision_boundary_end_y <= matrix_y_delta && decision_boundary_end_y >= 0) {
-				glBegin(GL_LINES);
-				glColor3f(0.3, 0.3, 0.3);
-				glVertex2f(matrix_x_start + 0, matrix_y_start - matrix_y_delta + decision_boundary_start_y);
-				glVertex2f(matrix_x_start + matrix_x_delta, matrix_y_start - matrix_y_delta + decision_boundary_end_y);
-				glEnd();
-			}
-		}
-*/
+
 		// Class 3
 		decision_boundary_start_x = -1 * (weight_class_3[1] * min_wine_variable_value[1] + weight_class_3[2]) / weight_class_3[0];
 		decision_boundary_end_x = -1 * (weight_class_3[1] * max_wine_variable_value[1] + weight_class_3[2]) / weight_class_3[0];
@@ -927,24 +821,15 @@ void drawScreen() {
 	glVertex2f(0.74, 0.14);
 	glVertex2f(0.72, 0.14);
 	glEnd();
-	displayString(0.75f, 0.06f, "Data 1 Decision");
-	displayString(0.75f, 0.02f, "Boundary");
+	displayString(0.75f, 0.06f, "Cluster 1/2");
+	displayString(0.73f, 0.02f, "Decision Boundary");
 	glBegin(GL_LINES);
 	glColor3f(0.3, 0.3, 0.3);
 	glVertex2f(0.72, 0.08);
 	glVertex2f(0.74, 0.08);
 	glEnd();
-/*
-	displayString(0.75f, -0.05f, "Data 2 Decision");
-	displayString(0.75f, -0.09f, "Boundary");
-	glBegin(GL_LINES);
-	glColor3f(0.7, 0, 0.7);
-	glVertex2f(0.72, -0.03);
-	glVertex2f(0.74, -0.03);
-	glEnd();
-*/
-	displayString(0.75f, -0.05f, "Data 3 Decision");
-	displayString(0.75f, -0.09f, "Boundary");
+	displayString(0.75f, -0.05f, "Cluster 2/3");
+	displayString(0.73f, -0.09f, "Decision Boundary");
 	glBegin(GL_LINES);
 	glColor3f(0.7, 0, 0.7);
 	glVertex2f(0.72, -0.03);
